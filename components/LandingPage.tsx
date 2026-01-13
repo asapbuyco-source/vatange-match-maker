@@ -18,6 +18,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
   const gradientText = currentTheme === 'royal' 
     ? 'from-gold-300 via-yellow-200 to-gold-500' 
     : 'from-rose-300 via-pink-200 to-rose-500';
+  
+  // Dynamic Background Images
+  const heroImage = "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=1000&auto=format&fit=crop"; // Wedding couple
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -40,8 +43,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             <button onClick={() => scrollToSection('home')} className="hover:text-white transition-colors">Home</button>
+            <button onClick={() => scrollToSection('stories')} className="hover:text-white transition-colors">Success Stories</button>
             <button onClick={() => scrollToSection('features')} className="hover:text-white transition-colors">Features</button>
-            <button onClick={() => scrollToSection('support')} className="hover:text-white transition-colors">Support</button>
             <button onClick={() => scrollToSection('contact')} className="hover:text-white transition-colors">Contact</button>
           </div>
 
@@ -64,48 +67,84 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <section id="home" className="relative pt-32 pb-20 px-6 min-h-screen flex flex-col justify-center items-center text-center">
+      <section id="home" className="relative pt-32 pb-20 px-6 min-h-screen flex flex-col md:flex-row items-center justify-center gap-12 overflow-hidden">
+        
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className={`absolute top-[10%] left-[10%] w-96 h-96 ${currentTheme === 'royal' ? 'bg-purple-600/20' : 'bg-rose-600/20'} rounded-full blur-[100px] animate-pulse`} />
-          <div className={`absolute bottom-[10%] right-[10%] w-96 h-96 ${currentTheme === 'royal' ? 'bg-gold-500/10' : 'bg-pink-500/10'} rounded-full blur-[100px]`} />
+          <div className={`absolute top-[-10%] left-[-10%] w-[600px] h-[600px] ${currentTheme === 'royal' ? 'bg-purple-900/20' : 'bg-rose-900/20'} rounded-full blur-[120px] animate-pulse`} />
+          <div className={`absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] ${currentTheme === 'royal' ? 'bg-gold-500/10' : 'bg-pink-500/10'} rounded-full blur-[100px]`} />
         </div>
 
+        {/* Text Content */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 max-w-4xl mx-auto"
+          className="relative z-10 max-w-2xl text-left flex-1"
         >
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-6 ${accentColor}`}>
              <Sparkles className="w-4 h-4" />
              <span className="text-xs font-bold uppercase tracking-wider">The Future of Dating is Here</span>
           </div>
 
-          <h1 className="font-serif text-6xl md:text-8xl font-bold leading-[1.1] mb-8">
-            Find Love, <br/>
+          <h1 className="font-serif text-5xl md:text-7xl font-bold leading-[1.1] mb-6">
+            Find the Love <br/>
+            You've Always <br/>
             <span className={`text-transparent bg-clip-text bg-gradient-to-r ${gradientText} italic`}>
-              Designed for You.
+              Dreamed Of.
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-            Vantage uses advanced behavioral AI to connect you with people who match your soul, not just your checklist. Secure, beautiful, and deeply personal.
+          <p className="text-lg text-slate-300 max-w-lg mb-8 leading-relaxed font-light">
+            Vantage uses advanced behavioral AI to connect you with people who share your values. From first dates to forever.
           </p>
 
-          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button 
               onClick={onStart}
-              className={`px-8 py-4 rounded-full font-bold text-lg text-black shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2 ${btnColor}`}
+              className={`px-8 py-4 rounded-full font-bold text-lg text-black shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 ${btnColor}`}
             >
               Get Started Now <ArrowRight className="w-5 h-5" />
             </button>
             <button 
-              onClick={() => scrollToSection('features')}
+              onClick={() => scrollToSection('stories')}
               className="px-8 py-4 rounded-full font-medium text-white border border-white/20 hover:bg-white/5 transition-all"
             >
-              Explore Features
+              See Success Stories
             </button>
+          </div>
+        </motion.div>
+
+        {/* Image Content */}
+        <motion.div 
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+          className="relative z-10 flex-1 w-full max-w-lg"
+        >
+          <div className="relative">
+             {/* Main Image */}
+             <div className="rounded-[40px] overflow-hidden border-8 border-white/5 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+               <img src={heroImage} alt="Happy Couple" className="w-full h-[500px] object-cover" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+               <div className="absolute bottom-6 left-6 text-white">
+                  <p className="text-sm font-bold uppercase tracking-widest mb-1 text-white/80">Success Story</p>
+                  <p className="font-serif text-2xl">Sarah & James, Married 2023</p>
+               </div>
+             </div>
+
+             {/* Floating Badge */}
+             <div className={`absolute -bottom-10 -left-10 p-6 rounded-2xl border border-white/10 backdrop-blur-xl shadow-xl ${currentTheme === 'royal' ? 'bg-slate-900/90' : 'bg-rose-950/90'}`}>
+                <div className="flex items-center gap-3 mb-2">
+                   <div className="flex -space-x-2">
+                      {[1,2,3].map(i => (
+                        <div key={i} className={`w-8 h-8 rounded-full border-2 border-white bg-slate-700 flex items-center justify-center text-[10px]`}>{i}</div>
+                      ))}
+                   </div>
+                   <span className="font-bold text-xl">10k+</span>
+                </div>
+                <p className="text-sm text-slate-400">Matches made this month</p>
+             </div>
           </div>
         </motion.div>
 
@@ -113,15 +152,46 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
         <motion.div 
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-500 cursor-pointer"
-          onClick={() => scrollToSection('features')}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-500 cursor-pointer z-20"
+          onClick={() => scrollToSection('stories')}
         >
           <ChevronDown className="w-8 h-8" />
         </motion.div>
       </section>
 
+      {/* --- SUCCESS STORIES SECTION --- */}
+      <section id="stories" className={`py-24 px-6 relative z-10 ${currentTheme === 'royal' ? 'bg-slate-900/50' : 'bg-black/20'}`}>
+         <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+               <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">Real Stories, Real Love</h2>
+               <p className="text-slate-400 max-w-2xl mx-auto">See how Vantage Match has helped thousands find their perfect partner.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+               <StoryCard 
+                  image="https://images.unsplash.com/photo-1621252179027-94459d27d3ee?q=80&w=800&auto=format&fit=crop"
+                  names="Elena & Marcus"
+                  quote="We matched on Vantage and knew instantly. The compatibility score wasn't lying!"
+                  theme={currentTheme}
+               />
+               <StoryCard 
+                  image="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=800&auto=format&fit=crop"
+                  names="David & Chris"
+                  quote="Finally, an app that focuses on what actually matters. 2 years strong."
+                  theme={currentTheme}
+               />
+               <StoryCard 
+                  image="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=800&auto=format&fit=crop"
+                  names="Priya & Raj"
+                  quote="From a magic icebreaker to our wedding day. Thank you Vantage!"
+                  theme={currentTheme}
+               />
+            </div>
+         </div>
+      </section>
+
       {/* --- FEATURES SECTION --- */}
-      <section id="features" className={`py-24 px-6 relative z-10 ${currentTheme === 'royal' ? 'bg-slate-900/50' : 'bg-black/20'}`}>
+      <section id="features" className="py-24 px-6 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">Why Choose Vantage?</h2>
@@ -145,44 +215,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
               icon={<MessageCircle className={`w-8 h-8 ${accentColor}`} />}
               title="Magic Icebreakers"
               desc="Never struggle with what to say. Get AI-generated conversation starters tailored to your match."
-              theme={currentTheme}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* --- SUPPORT / FAQ SECTION --- */}
-      <section id="support" className="py-24 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-10">
-            <div className={`p-3 rounded-xl ${currentTheme === 'royal' ? 'bg-purple-900/50' : 'bg-rose-900/50'}`}>
-              <HelpCircle className={`w-8 h-8 ${accentColor}`} />
-            </div>
-            <div>
-               <h2 className="font-serif text-4xl font-bold">Support Center</h2>
-               <p className="text-slate-400">Common questions and helpful answers.</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <FAQItem 
-              question="Is Vantage Match free to use?" 
-              answer="Vantage offers a generous free tier allowing you to match and chat. Our Gold tier unlocks advanced AI insights and unlimited swipes." 
-              theme={currentTheme}
-            />
-            <FAQItem 
-              question="How does the AI matching work?" 
-              answer="We analyze your bio, interests, and interaction style to find patterns compatible with other users, assigning a unique Compatibility Score." 
-              theme={currentTheme}
-            />
-            <FAQItem 
-              question="Is my payment information secure?" 
-              answer="Yes. We use standard mobile money protocols (USSD push). We do not store your PIN or sensitive banking data." 
-              theme={currentTheme}
-            />
-            <FAQItem 
-              question="Can I change my location?" 
-              answer="Currently, Vantage uses your device location to find matches within a 50km radius. Travel mode is coming soon." 
               theme={currentTheme}
             />
           </div>
@@ -280,6 +312,27 @@ const FeatureCard = ({ icon, title, desc, theme }: any) => (
     <p className="text-slate-400 leading-relaxed">
       {desc}
     </p>
+  </motion.div>
+);
+
+const StoryCard = ({ image, names, quote, theme }: any) => (
+  <motion.div 
+    initial={{ opacity: 0, scale: 0.95 }}
+    whileInView={{ opacity: 1, scale: 1 }}
+    viewport={{ once: true }}
+    className={`rounded-3xl overflow-hidden border border-white/5 group ${theme === 'royal' ? 'bg-slate-900' : 'bg-[#1a0505]'}`}
+  >
+    <div className="h-64 overflow-hidden relative">
+      <img src={image} alt={names} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
+    </div>
+    <div className="p-8 relative">
+       <div className={`absolute -top-6 right-8 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-lg ${theme === 'royal' ? 'bg-gold-500 text-black' : 'bg-rose-500 text-white'}`}>
+         "
+       </div>
+       <h3 className="font-serif text-2xl font-bold mb-2">{names}</h3>
+       <p className="text-slate-400 italic leading-relaxed">{quote}</p>
+    </div>
   </motion.div>
 );
 

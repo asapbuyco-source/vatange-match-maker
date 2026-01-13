@@ -43,7 +43,7 @@ const MATCH_PROFILES: UserProfile[] = [
 
 const App: React.FC = () => {
   // --- Theme State ---
-  const [theme, setTheme] = useState<Theme>('royal');
+  const [theme, setTheme] = useState<Theme>('rose'); // Defaulting to Rose theme as requested
 
   // --- Navigation State ---
   const [view, setView] = useState<'landing' | 'onboarding' | 'app'>('landing');
