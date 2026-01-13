@@ -1,31 +1,44 @@
 import React from 'react';
 import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { UserProfile, AICompatibilityResult } from '../types';
-import { Sparkles, Check, X, BrainCircuit, Info } from 'lucide-react';
+import { UserProfile, AICompatibilityResult, Theme } from '../types';
+import { Sparkles, Briefcase, Info } from 'lucide-react';
 
 interface MatchCardProps {
   profile: UserProfile;
   aiData: AICompatibilityResult | null;
   aiLoading: boolean;
   onSwipe: (direction: 'left' | 'right') => void;
+  direction?: 'left' | 'right' | null;
+  theme: Theme;
 }
 
-const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwipe }) => {
+const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwipe, direction, theme }) => {
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-10, 10]);
+  const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
   
-  // Visual indicators
+  // Theme Variables
+  const badgeBg = theme === 'royal' ? 'bg-gold-500/20' : 'bg-rose-500/20';
+  const badgeBorder = theme === 'royal' ? 'border-gold-500/50' : 'border-rose-500/50';
+  const badgeText = theme === 'royal' ? 'text-gold-300' : 'text-rose-300';
+  const iconColor = theme === 'royal' ? 'text-gold-400' : 'text-rose-400';
+
+  // Visual indicators (Stamps)
   const likeOpacity = useTransform(x, [50, 150], [0, 1]);
   const nopeOpacity = useTransform(x, [-50, -150], [0, 1]);
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.x > 100) {
+    const threshold = 100;
+    if (info.offset.x > threshold) {
       onSwipe('right');
-    } else if (info.offset.x < -100) {
+    } else if (info.offset.x < -threshold) {
       onSwipe('left');
     }
   };
+
+  // Determine exit animation based on direction prop (for button clicks) or standard fallback
+  const exitX = direction === 'right' ? 500 : direction === 'left' ? -500 : 0;
+  const exitRot = direction === 'right' ? 20 : direction === 'left' ? -20 : 0;
 
   return (
     <motion.div
@@ -33,95 +46,80 @@ const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwi
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
-      className="absolute top-0 w-full max-w-[90%] md:max-w-sm h-[68vh] rounded-[32px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] bg-slate-900 border border-white/10 cursor-grab active:cursor-grabbing flex flex-col z-20"
-      initial={{ scale: 0.95, opacity: 0, y: 20 }}
+      className="absolute inset-0 w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-black border border-white/10 cursor-grab active:cursor-grabbing z-20 origin-bottom"
+      initial={{ scale: 0.95, opacity: 0, y: 0 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0.95, opacity: 0 }}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.4 }}
+      exit={{ x: exitX, rotate: exitRot, opacity: 0, transition: { duration: 0.3 } }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
     >
-      {/* Image Section */}
-      <div className="relative flex-1 w-full bg-slate-900 group">
+      {/* Full Background Image */}
+      <div className="absolute inset-0 select-none">
         <img 
           src={profile.imageUrl} 
           alt={profile.name} 
-          className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
+          className="w-full h-full object-cover pointer-events-none"
           draggable={false}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-royal-900 via-transparent to-transparent opacity-90" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
         
-        {/* Swipe Overlays */}
-        <motion.div style={{ opacity: likeOpacity }} className="absolute top-8 left-8 bg-green-500/20 backdrop-blur-md border border-green-400 rounded-full px-6 py-2 transform -rotate-6 shadow-xl">
-          <span className="text-green-400 font-serif font-bold text-2xl tracking-widest">YES</span>
-        </motion.div>
-        <motion.div style={{ opacity: nopeOpacity }} className="absolute top-8 right-8 bg-red-500/20 backdrop-blur-md border border-red-500 rounded-full px-6 py-2 transform rotate-6 shadow-xl">
-          <span className="text-red-500 font-serif font-bold text-2xl tracking-widest">NO</span>
-        </motion.div>
-
-        {/* Name Info */}
-        <div className="absolute bottom-6 left-6 text-white z-10">
-          <h2 className="text-4xl font-serif font-bold text-white drop-shadow-md mb-1">
-            {profile.name}, <span className="text-gold-400 font-light">{profile.age}</span>
-          </h2>
-          <p className="text-slate-200 text-sm font-medium tracking-wide uppercase opacity-90 flex items-center gap-2">
-             {profile.job}
-          </p>
-        </div>
+        {/* Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
       </div>
 
-      {/* Vantage AI Panel */}
-      <div className="relative h-[32%] bg-gradient-to-b from-royal-900 to-black p-6 flex flex-col justify-between border-t border-white/5">
+      {/* Swipe Stamps */}
+      <motion.div style={{ opacity: likeOpacity }} className="absolute top-10 left-10 border-4 border-green-500 rounded-lg px-4 py-2 transform -rotate-12 z-30">
+        <span className="text-green-500 font-bold text-4xl uppercase tracking-widest">Like</span>
+      </motion.div>
+      <motion.div style={{ opacity: nopeOpacity }} className="absolute top-10 right-10 border-4 border-red-500 rounded-lg px-4 py-2 transform rotate-12 z-30">
+        <span className="text-red-500 font-bold text-4xl uppercase tracking-widest">Nope</span>
+      </motion.div>
+
+      {/* Content Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white flex flex-col gap-2 pb-24">
         
-        {/* AI Score Header */}
-        <div className="flex justify-between items-end mb-3">
-          <div className="flex items-center gap-2">
-             <div className="p-1.5 bg-gold-500/10 rounded-lg">
-                <Sparkles className="w-4 h-4 text-gold-400" />
-             </div>
-             <span className="text-xs font-bold tracking-[0.15em] text-gold-500 uppercase">Compatibility</span>
-          </div>
-          <div className="flex items-baseline gap-1">
-             {aiLoading ? (
-               <div className="h-6 w-12 bg-white/10 rounded animate-pulse" />
-             ) : (
-               <>
-                 <span className="text-4xl font-serif font-bold text-white">{aiData?.score}</span>
-                 <span className="text-sm text-slate-500">%</span>
-               </>
-             )}
-          </div>
+        {/* AI Insight Badge */}
+        {!aiLoading && aiData && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="self-start mb-2"
+          >
+            <div className={`flex items-center gap-2 backdrop-blur-md border rounded-full px-3 py-1.5 shadow-lg shadow-black/20 ${badgeBg} ${badgeBorder}`}>
+              <Sparkles className={`w-3.5 h-3.5 ${iconColor}`} />
+              <span className={`text-xs font-bold uppercase tracking-wide ${badgeText}`}>
+                {aiData.score}% Compatible
+              </span>
+            </div>
+          </motion.div>
+        )}
+
+        <div className="flex items-end gap-3">
+          <h2 className="text-4xl font-bold drop-shadow-lg">{profile.name}</h2>
+          <span className="text-2xl font-medium opacity-90 mb-1">{profile.age}</span>
         </div>
 
-        {/* Insight Text */}
-        <div className="relative bg-white/5 rounded-2xl p-4 border border-white/5">
-           {aiLoading ? (
-             <div className="space-y-2">
-               <div className="h-2 bg-white/10 rounded w-3/4 animate-pulse" />
-               <div className="h-2 bg-white/10 rounded w-1/2 animate-pulse delay-75" />
-             </div>
-           ) : (
-             <p className="text-sm text-slate-300 font-serif italic leading-relaxed line-clamp-2">
-               "{aiData?.insight}"
-             </p>
-           )}
+        <div className="flex items-center gap-2 text-sm font-medium opacity-80 mb-2">
+          <Briefcase className="w-4 h-4" />
+          <span>{profile.job}</span>
         </div>
 
-        {/* Action Buttons */}
-        <div className="absolute -top-8 right-6 flex gap-4">
-          <button 
-            onClick={() => onSwipe('left')}
-            className="w-14 h-14 rounded-full bg-slate-900 border border-white/10 text-red-500 shadow-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all hover:scale-110 active:scale-95"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <button 
-            onClick={() => onSwipe('right')}
-            className="w-14 h-14 rounded-full bg-slate-900 border border-white/10 text-green-500 shadow-xl flex items-center justify-center hover:bg-green-500 hover:text-white transition-all hover:scale-110 active:scale-95"
-          >
-            <Check className="w-6 h-6" />
-          </button>
+        {/* Interests Pills */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {profile.interests.slice(0, 3).map((interest, i) => (
+            <span key={i} className="px-2.5 py-1 rounded-md bg-white/10 text-xs font-medium backdrop-blur-sm border border-white/5">
+              {interest}
+            </span>
+          ))}
         </div>
+
+        {/* Bio or AI Insight */}
+        <p className="text-sm text-slate-200 line-clamp-2 leading-relaxed opacity-90 drop-shadow-md">
+           {aiData?.insight || profile.bio}
+        </p>
+
+        <button className="absolute bottom-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+          <Info className="w-6 h-6 text-white" />
+        </button>
       </div>
     </motion.div>
   );

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vantage Match</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -14,16 +14,32 @@
               royal: {
                 800: '#581c87', // Deep Purple
                 900: '#3b0764',
+                950: '#1e0a2e', // Very dark purple for bg
               },
               gold: {
                 400: '#facc15',
                 500: '#eab308', // Gold
                 600: '#ca8a04',
+              },
+              rose: {
+                400: '#fb7185',
+                500: '#f43f5e',
+                600: '#e11d48',
+                950: '#2a0a12', // Deep Romantic Red for bg
               }
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
               serif: ['Playfair Display', 'serif'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              }
             }
           }
         }
@@ -31,8 +47,23 @@
     </script>
     <style>
       body {
-        background-color: #0f172a;
-        color: white;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* App handles overflow */
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
       }
     </style>
   <script type="importmap">

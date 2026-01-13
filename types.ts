@@ -1,3 +1,5 @@
+export type Theme = 'royal' | 'rose';
+
 export interface UserProfile {
   id: string;
   name: string;
