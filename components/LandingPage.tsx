@@ -29,7 +29,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
   };
 
   return (
-    <div className={`min-h-screen w-full text-white overflow-y-auto overflow-x-hidden relative scroll-smooth ${currentTheme === 'royal' ? 'bg-slate-950 selection:bg-gold-500' : 'bg-rose-950 selection:bg-rose-500'} selection:text-black`}>
+    <div className={`h-full w-full text-white overflow-y-auto overflow-x-hidden relative scroll-smooth ${currentTheme === 'royal' ? 'bg-slate-950 selection:bg-gold-500' : 'bg-rose-950 selection:bg-rose-500'} selection:text-black`}>
       
       {/* Navigation Bar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-md border-b ${currentTheme === 'royal' ? 'border-white/10 bg-slate-950/80' : 'border-white/10 bg-rose-950/80'}`}>

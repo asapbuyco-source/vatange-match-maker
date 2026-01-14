@@ -22,10 +22,15 @@
                 600: '#ca8a04',
               },
               rose: {
-                400: '#fb7185',
-                500: '#f43f5e',
-                600: '#e11d48',
-                950: '#2a0a12', // Deep Romantic Red for bg
+                400: '#FF655B', // Brand Orange
+                500: '#FD297B', // Brand Pink
+                600: '#FF5864', // Brand Accent
+                950: '#111418', // Dark Neutral Background (Tinder Dark Mode)
+              },
+              gray: {
+                850: '#1f2937',
+                900: '#111827',
+                950: '#0b0f19',
               }
             },
             fontFamily: {
@@ -34,6 +39,7 @@
             },
             animation: {
               'float': 'float 6s ease-in-out infinite',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
               float: {
@@ -52,24 +58,16 @@
         margin: 0;
         padding: 0;
         overflow: hidden; /* App handles overflow via internal scrolling containers */
+        background-color: #000;
       }
       
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
+        width: 0px;
+        background: transparent;
       }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.3",
