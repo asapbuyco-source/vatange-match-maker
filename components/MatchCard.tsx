@@ -45,7 +45,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwi
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
-      className="absolute inset-0 w-full h-full rounded-[24px] overflow-hidden shadow-2xl bg-black cursor-grab active:cursor-grabbing z-20 origin-bottom"
+      className="group absolute inset-0 w-full h-full rounded-[24px] overflow-hidden shadow-2xl bg-black cursor-grab active:cursor-grabbing z-20 origin-bottom"
       initial={{ scale: 0.95, opacity: 0, y: 0 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ x: exitX, rotate: exitRot, opacity: 0, transition: { duration: 0.3 } }}
@@ -56,7 +56,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwi
         <img 
           src={profile.imageUrl} 
           alt={profile.name} 
-          className="w-full h-full object-cover pointer-events-none"
+          className="w-full h-full object-cover pointer-events-none transition-transform duration-700 ease-in-out group-hover:scale-110"
           draggable={false}
         />
         
