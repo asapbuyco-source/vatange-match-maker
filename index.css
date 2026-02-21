@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 75%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .text-gold-300 { color: #fde68a; }
+  .text-gold-400 { color: #facc15; }
+  .text-gold-500 { color: #eab308; }
+  .text-gold-600 { color: #ca8a04; }
+  .bg-gold-300 { background-color: #fde68a; }
+  .bg-gold-400 { background-color: #facc15; }
+  .bg-gold-500 { background-color: #eab308; }
+  .bg-gold-600 { background-color: #ca8a04; }
+  .from-gold-300 { --tw-gradient-from: #fde68a; }
+  .from-gold-400 { --tw-gradient-from: #facc15; }
+  .from-gold-500 { --tw-gradient-from: #eab308; }
+  .from-gold-600 { --tw-gradient-from: #ca8a04; }
+  .to-gold-400 { --tw-gradient-to: #facc15; }
+  .to-gold-500 { --tw-gradient-to: #eab308; }
+  .to-yellow-600 { --tw-gradient-to: #ca8a04; }
+  .border-gold-500 { border-color: #eab308; }
+  .shadow-gold-500\/20 { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
+  .text-rose-400 { color: #FF655B; }
+  .text-rose-500 { color: #FD297B; }
+  .text-rose-600 { color: #FF5864; }
+  .bg-rose-400 { background-color: #FF655B; }
+  .bg-rose-500 { background-color: #FD297B; }
+  .bg-rose-600 { background-color: #FF5864; }
+  .bg-rose-950 { background-color: #111418; }
+  .from-rose-400 { --tw-gradient-from: #FF655B; }
+  .from-rose-500 { --tw-gradient-from: #FD297B; }
+  .from-rose-600 { --tw-gradient-from: #FF5864; }
+  .to-rose-400 { --tw-gradient-to: #FF655B; }
+  .to-rose-500 { --tw-gradient-to: #FD297B; }
+  .to-rose-600 { --tw-gradient-to: #FF5864; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}

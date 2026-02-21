@@ -1,163 +1,325 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { UserProfile } from '../types';
-import { Camera, ArrowRight, User } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { UserProfile, CAMEROON_CITIES } from '../types';
+import { Camera, ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface OnboardingProps {
   onComplete: (profile: UserProfile) => void;
 }
 
 const INTERESTS_LIST = [
-  'Tech', 'Travel', 'Art', 'Music', 'Fitness', 'Foodie', 'Gaming', 'Nature', 'Fashion', 'Movies', 'Reading', 'Dancing'
+  'Tech', 'Travel', 'Art', 'Music', 'Fitness', 'Foodie', 'Gaming', 'Nature',
+  'Fashion', 'Movies', 'Reading', 'Dancing', 'Football', 'Photography', 'Business', 'Spirituality'
 ];
 
+const STEPS = ['account', 'photos', 'interests', 'location'] as const;
+type Step = typeof STEPS[number];
+
 const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    job: '',
-    bio: '',
-  });
+  const [step, setStep] = useState<Step>('account');
+  const [formData, setFormData] = useState({ name: '', age: '', job: '', bio: '', gender: '' as 'male' | 'female' | 'other' | '' });
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState('');
+  const [city, setCity] = useState('Douala');
+  const [ageError, setAgeError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const currentStepIndex = STEPS.indexOf(step);
+  const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (ev.target?.result) setImageUrl(ev.target.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const toggleInterest = (interest: string) => {
     if (selectedInterests.includes(interest)) {
       setSelectedInterests(prev => prev.filter(i => i !== interest));
-    } else {
-      if (selectedInterests.length < 5) {
-        setSelectedInterests(prev => [...prev, interest]);
-      }
+    } else if (selectedInterests.length < 6) {
+      setSelectedInterests(prev => [...prev, interest]);
     }
   };
 
+  const validateAccount = () => {
+    const age = parseInt(formData.age);
+    if (!formData.name.trim()) return false;
+    if (isNaN(age) || age < 18) { setAgeError('You must be at least 18 years old to use Vantage.'); return false; }
+    if (age > 90) { setAgeError('Please enter a valid age.'); return false; }
+    setAgeError('');
+    return true;
+  };
+
+  const goNext = () => {
+    if (step === 'account' && !validateAccount()) return;
+    const nextIndex = currentStepIndex + 1;
+    if (nextIndex < STEPS.length) setStep(STEPS[nextIndex]);
+    else handleSubmit();
+  };
+
+  const goBack = () => {
+    const prevIndex = currentStepIndex - 1;
+    if (prevIndex >= 0) setStep(STEPS[prevIndex]);
+  };
+
   const handleSubmit = () => {
-    // Basic validation
-    if (!formData.name || !formData.age) return;
+    const displayName = formData.name.trim();
+    const avatarUrl = imageUrl ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=FD297B&color=fff&size=400&bold=true`;
 
     const newProfile: UserProfile = {
       id: `user-${Date.now()}`,
-      name: formData.name,
+      name: displayName,
       age: parseInt(formData.age),
-      job: formData.job || 'Dreamer',
-      bio: formData.bio || 'Ready to explore.',
-      imageUrl: `https://ui-avatars.com/api/?name=${formData.name}&background=6B21A8&color=fff&size=400`, 
-      interests: selectedInterests.length > 0 ? selectedInterests : ['General']
+      job: formData.job || 'Professional',
+      bio: formData.bio || 'Ready to find a genuine connection.',
+      imageUrl: avatarUrl,
+      interests: selectedInterests.length > 0 ? selectedInterests : ['General'],
+      location: city,
+      gender: formData.gender || 'other',
+      verified: false,
     };
-
     onComplete(newProfile);
   };
 
+  const canProceed = () => {
+    if (step === 'account') return formData.name.trim().length > 0 && formData.age !== '';
+    if (step === 'photos') return true; // photo optional
+    if (step === 'interests') return selectedInterests.length >= 2;
+    return true;
+  };
+
   return (
-    <div 
-      className="h-full w-full flex flex-col bg-slate-950 overflow-hidden bg-cover bg-center"
-      style={{
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url("https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=1000&auto=format&fit=crop")'
-      }}
-    >
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide backdrop-blur-sm">
-        <div className="max-w-md mx-auto w-full pb-20">
+    <div className="h-full w-full flex flex-col bg-slate-950 overflow-hidden">
+      {/* Progress Bar */}
+      <div className="h-1 bg-slate-800">
+        <motion.div
+          className="h-full bg-gradient-to-r from-rose-500 to-rose-400"
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.4 }}
+        />
+      </div>
+
+      {/* Header */}
+      <div className="flex items-center px-5 pt-5 pb-2">
+        {currentStepIndex > 0 ? (
+          <button onClick={goBack} className="p-2 rounded-full hover:bg-white/5 text-slate-400 mr-2">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        ) : <div className="w-9" />}
+        <div className="flex-1 flex gap-1.5 mx-2">
+          {STEPS.map((s, i) => (
+            <div key={s} className={`h-1 flex-1 rounded-full transition-all duration-400 ${i <= currentStepIndex ? 'bg-rose-500' : 'bg-slate-800'}`} />
+          ))}
+        </div>
+        <div className="w-9 text-right">
+          <span className="text-xs text-slate-500 font-bold">{currentStepIndex + 1}/{STEPS.length}</span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 mt-4"
+            key={step}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.25 }}
+            className="px-5 pt-6 pb-32"
           >
-            <h2 className="text-3xl font-serif font-bold text-white mb-2">Create Profile</h2>
-            <p className="text-slate-400 text-sm">Tell us a bit about yourself to find your best match.</p>
-          </motion.div>
 
-          <div className="space-y-6">
-            {/* Photo Placeholder */}
-            <div className="flex justify-center mb-6">
-              <div className="w-28 h-28 rounded-full bg-black/40 border-2 border-dashed border-slate-700 flex flex-col items-center justify-center text-slate-500 cursor-pointer hover:border-gold-500 hover:text-gold-500 transition-colors group backdrop-blur-md">
-                <Camera className="w-8 h-8 mb-2 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] uppercase font-bold tracking-wide">Add Photo</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Name</label>
-                <input 
-                  type="text" 
-                  value={formData.name}
-                  onChange={e => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500 focus:bg-black/70 outline-none transition-all placeholder:text-slate-600 backdrop-blur-sm"
-                  placeholder="e.g. Alex"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
+            {/* STEP 1: Account */}
+            {step === 'account' && (
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Age</label>
-                  <input 
-                    type="number" 
-                    value={formData.age}
-                    onChange={e => setFormData({...formData, age: e.target.value})}
-                    className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500 focus:bg-black/70 outline-none transition-all placeholder:text-slate-600 backdrop-blur-sm"
-                    placeholder="25"
-                  />
+                  <h2 className="text-3xl font-serif font-bold text-white mb-1">Create your profile</h2>
+                  <p className="text-slate-400 text-sm">Tell us a bit about yourself.</p>
                 </div>
-                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Job Title</label>
-                  <input 
-                    type="text" 
-                    value={formData.job}
-                    onChange={e => setFormData({...formData, job: e.target.value})}
-                    className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500 focus:bg-black/70 outline-none transition-all placeholder:text-slate-600 backdrop-blur-sm"
-                    placeholder="e.g. Artist"
-                  />
+                <div className="space-y-4">
+                  <Field label="First Name *" value={formData.name} onChange={v => setFormData(p => ({ ...p, name: v }))} placeholder="e.g. Sofia" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Field label="Age *" value={formData.age} onChange={v => { setFormData(p => ({ ...p, age: v })); setAgeError(''); }} placeholder="24" type="number" />
+                      {ageError && (
+                        <div className="flex items-start gap-1.5 mt-1.5">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 flex-shrink-0" />
+                          <p className="text-xs text-red-400">{ageError}</p>
+                        </div>
+                      )}
+                    </div>
+                    <Field label="Job Title" value={formData.job} onChange={v => setFormData(p => ({ ...p, job: v }))} placeholder="e.g. Engineer" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">I am a...</label>
+                    <div className="flex gap-2">
+                      {(['male', 'female', 'other'] as const).map(g => (
+                        <button
+                          key={g}
+                          onClick={() => setFormData(p => ({ ...p, gender: g }))}
+                          className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize transition-all border ${formData.gender === g
+                              ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-900/20'
+                              : 'bg-slate-900 text-slate-400 border-white/10'
+                            }`}
+                        >
+                          {g.charAt(0).toUpperCase() + g.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Bio</label>
+                    <textarea
+                      value={formData.bio}
+                      onChange={e => setFormData(p => ({ ...p, bio: e.target.value }))}
+                      maxLength={300}
+                      className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500/70 outline-none h-24 resize-none placeholder:text-slate-600"
+                      placeholder="What makes you unique? (optional)"
+                    />
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Bio</label>
-                <textarea 
-                  value={formData.bio}
-                  onChange={e => setFormData({...formData, bio: e.target.value})}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500 focus:bg-black/70 outline-none transition-all h-24 resize-none placeholder:text-slate-600 backdrop-blur-sm"
-                  placeholder="What makes you tick?"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Interests (Max 5)</label>
-                <div className="flex flex-wrap gap-2">
-                  {INTERESTS_LIST.map(interest => (
+            {/* STEP 2: Photos */}
+            {step === 'photos' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-serif font-bold text-white mb-1">Add your best photo</h2>
+                  <p className="text-slate-400 text-sm">Profiles with photos get 5x more matches.</p>
+                </div>
+                <div className="relative">
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
+                  {imageUrl ? (
+                    <div className="relative group">
+                      <img src={imageUrl} className="w-full h-80 object-cover rounded-2xl border border-white/10" />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      >
+                        <div className="flex flex-col items-center text-white">
+                          <Camera className="w-10 h-10 mb-2" />
+                          <span className="font-bold">Change Photo</span>
+                        </div>
+                      </button>
+                      <div className="absolute top-3 right-3 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-white" />
+                      </div>
+                    </div>
+                  ) : (
                     <button
-                      key={interest}
-                      onClick={() => toggleInterest(interest)}
-                      className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
-                        selectedInterests.includes(interest)
-                          ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-500/25'
-                          : 'bg-black/40 text-slate-400 border-white/10 hover:border-white/30 hover:bg-black/60'
-                      }`}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full h-80 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-900 flex flex-col items-center justify-center text-slate-500 hover:border-rose-500/50 hover:text-rose-400 transition-colors group"
                     >
-                      {interest}
+                      <Camera className="w-16 h-16 mb-4 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-lg">Upload Photo</span>
+                      <span className="text-sm mt-1">Tap to choose from gallery</span>
                     </button>
+                  )}
+                </div>
+                <p className="text-center text-slate-600 text-xs">You can skip this and add a photo later.</p>
+              </div>
+            )}
+
+            {/* STEP 3: Interests */}
+            {step === 'interests' && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-3xl font-serif font-bold text-white mb-1">Your interests</h2>
+                  <p className="text-slate-400 text-sm">Pick at least 2 things you love (max 6).</p>
+                </div>
+                <div className="flex flex-wrap gap-2.5">
+                  {INTERESTS_LIST.map(interest => {
+                    const selected = selectedInterests.includes(interest);
+                    return (
+                      <motion.button
+                        key={interest}
+                        whileTap={{ scale: 0.92 }}
+                        onClick={() => toggleInterest(interest)}
+                        className={`px-4 py-2.5 rounded-full text-sm font-bold transition-all border ${selected
+                            ? 'bg-rose-600 text-white border-rose-500 shadow-lg'
+                            : 'bg-slate-900 text-slate-400 border-white/10 hover:border-white/20'
+                          }`}
+                      >
+                        {interest}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                <p className={`text-center text-sm font-bold ${selectedInterests.length >= 2 ? 'text-green-400' : 'text-slate-500'}`}>
+                  {selectedInterests.length}/6 selected
+                  {selectedInterests.length >= 2 && ' ✓'}
+                </p>
+              </div>
+            )}
+
+            {/* STEP 4: Location */}
+            {step === 'location' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-serif font-bold text-white mb-1">Where are you?</h2>
+                  <p className="text-slate-400 text-sm">We'll show you matches in your city first.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {CAMEROON_CITIES.map(c => (
+                    <motion.button
+                      key={c}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setCity(c)}
+                      className={`py-3 px-4 rounded-xl text-sm font-bold text-left transition-all border ${city === c
+                          ? 'bg-rose-600/20 border-rose-500 text-white'
+                          : 'bg-slate-900 border-white/10 text-slate-400 hover:border-white/20'
+                        }`}
+                    >
+                      {city === c && <span className="mr-1.5">📍</span>}{c}
+                    </motion.button>
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
-      
-      {/* Footer / CTA Area */}
-      <div className="p-6 bg-black/80 border-t border-white/10 absolute bottom-0 w-full backdrop-blur-md">
-         <button
-            onClick={handleSubmit}
-            disabled={!formData.name || !formData.age}
-            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${
-              !formData.name || !formData.age
-                ? 'bg-white/10 text-slate-500 cursor-not-allowed'
-                : 'bg-rose-600 text-white shadow-lg shadow-rose-900/40 hover:bg-rose-500'
+
+      {/* Footer CTA */}
+      <div className="absolute bottom-0 left-0 right-0 p-5 bg-slate-950/95 border-t border-white/5 backdrop-blur-md">
+        <motion.button
+          onClick={goNext}
+          disabled={!canProceed()}
+          whileTap={{ scale: canProceed() ? 0.96 : 1 }}
+          className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${canProceed()
+              ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-xl shadow-rose-900/30'
+              : 'bg-white/8 text-slate-500 cursor-not-allowed'
             }`}
-          >
-            Start Matching <ArrowRight className="w-5 h-5" />
+        >
+          {step === 'location' ? 'Start Matching' : 'Continue'}
+          <ArrowRight className="w-5 h-5" />
+        </motion.button>
+        {step === 'photos' && (
+          <button onClick={goNext} className="w-full text-center text-sm text-slate-500 mt-3 font-medium">
+            Skip for now
           </button>
+        )}
       </div>
     </div>
   );
 };
+
+const Field: React.FC<{ label: string; value: string; onChange: (v: string) => void; placeholder: string; type?: string }> = ({ label, value, onChange, placeholder, type = 'text' }) => (
+  <div>
+    <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">{label}</label>
+    <input
+      type={type}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500/70 outline-none transition-all placeholder:text-slate-600"
+    />
+  </div>
+);
 
 export default Onboarding;
