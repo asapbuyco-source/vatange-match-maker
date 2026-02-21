@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { UserProfile, Theme, FilterPreferences, SubscriptionTier, ToastMessage, SuperLikeState } from './types';
 import { useVantageAI } from './hooks/useVantageAI';
+import { useLanguage } from './i18n/LanguageContext';
+import { DEMO_PROFILE_IMAGES } from './constants/africanImages';
 import MatchCard from './components/MatchCard';
 import SubscriptionModal from './components/SubscriptionModal';
 import ChatWindow from './components/ChatWindow';
@@ -13,20 +15,21 @@ import ToastContainer from './components/ToastContainer';
 import SettingsPanel from './components/SettingsPanel';
 import EditProfilePanel from './components/EditProfilePanel';
 import ProfileInfoDrawer from './components/ProfileInfoDrawer';
+import AccountVerification from './components/AccountVerification';
 import {
   Shield, RotateCcw, X, Star, Heart, Zap, Sparkles,
-  Settings, Edit3, Search, CheckCircle, Lock, Crown
+  Settings, Edit3, Search, CheckCircle, Lock, Crown, Globe
 } from 'lucide-react';
 
-// Cameroon-specific demo profiles
+// Cameroon-specific demo profiles — using authentic African couple imagery
 const MATCH_PROFILES: UserProfile[] = [
   {
     id: '1',
     name: 'Amina',
     age: 24,
     job: 'Fashion Designer',
-    bio: 'Passionate about Cameroonian fashion and creating looks that celebrate our culture. I love afrobeats, food, and long conversations.',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    bio: 'Passionate about Cameroonian fashion and creating looks that celebrate our culture. I love afrobeats, good food, and long conversations by the beach.',
+    imageUrl: DEMO_PROFILE_IMAGES.amina,
     interests: ['Fashion', 'Art', 'Music', 'Foodie'],
     location: 'Douala',
     verified: true,
@@ -38,8 +41,8 @@ const MATCH_PROFILES: UserProfile[] = [
     name: 'Kevin',
     age: 28,
     job: 'Software Engineer',
-    bio: 'Building Cameroon\'s tech future one line of code at a time. I enjoy hiking Mount Cameroon, jazz, and debating big ideas.',
-    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    bio: 'Building Cameroon\'s tech future one line of code at a time. I enjoy hiking Mount Cameroon, jazz, and debating big ideas over ndolé.',
+    imageUrl: DEMO_PROFILE_IMAGES.kevin,
     interests: ['Tech', 'Fitness', 'Music', 'Travel'],
     location: 'Yaoundé',
     verified: true,
@@ -48,11 +51,11 @@ const MATCH_PROFILES: UserProfile[] = [
   },
   {
     id: '3',
-    name: 'Sophie',
+    name: 'Grace',
     age: 25,
     job: 'Pediatric Nurse',
-    bio: 'Healthcare hero by day, adventurer by weekend. I love exploring Kribi\'s beaches and trying new restaurants across Cameroon.',
-    imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    bio: 'Healthcare hero by day, adventurer by weekend. I love exploring Kribi\'s beaches and discovering hidden restaurants across Cameroon.',
+    imageUrl: DEMO_PROFILE_IMAGES.grace,
     interests: ['Nature', 'Travel', 'Fitness', 'Reading'],
     location: 'Kribi',
     verified: false,
@@ -61,11 +64,11 @@ const MATCH_PROFILES: UserProfile[] = [
   },
   {
     id: '4',
-    name: 'Marcel',
+    name: 'Marcus',
     age: 30,
     job: 'Entrepreneur',
     bio: 'Running two businesses in Douala while staying grounded. Football fanatic, lover of good ndolé, and always up for a deep conversation.',
-    imageUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    imageUrl: DEMO_PROFILE_IMAGES.marcus,
     interests: ['Football', 'Business', 'Foodie', 'Music'],
     location: 'Douala',
     verified: true,
@@ -74,16 +77,55 @@ const MATCH_PROFILES: UserProfile[] = [
   },
   {
     id: '5',
-    name: 'Celine',
+    name: 'Chloe',
     age: 22,
     job: 'Law Student',
-    bio: 'Future attorney fighting for justice. I spend my free time dancing, reading African literature, and dreaming of road trips across Africa.',
-    imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    bio: 'Future attorney fighting for justice. I spend free time dancing, reading African literature, and dreaming of road trips across the continent.',
+    imageUrl: DEMO_PROFILE_IMAGES.chloe,
     interests: ['Reading', 'Dancing', 'Travel', 'Art'],
     location: 'Bafoussam',
     verified: false,
     distance: 45,
     lastActive: 'Active 1h ago',
+  },
+  {
+    id: '6',
+    name: 'Fatima',
+    age: 26,
+    job: 'Architect',
+    bio: 'Designing spaces that reflect African identity. Coffee lover, weekend hiker, and passionate about sustainable architecture in Cameroon.',
+    imageUrl: DEMO_PROFILE_IMAGES.fatima,
+    interests: ['Architecture', 'Art', 'Nature', 'Coffee'],
+    location: 'Yaoundé',
+    verified: true,
+    distance: 5,
+    lastActive: 'Active now',
+  },
+  {
+    id: '7',
+    name: 'Christian',
+    age: 29,
+    job: 'Music Producer',
+    bio: 'Creating afrobeats that tell the story of Douala. Studio by night, beaches by day. Looking for someone who appreciates real music and real vibes.',
+    imageUrl: DEMO_PROFILE_IMAGES.christian,
+    interests: ['Music', 'Art', 'Travel', 'Fitness'],
+    location: 'Douala',
+    verified: true,
+    distance: 9,
+    lastActive: 'Active 30min ago',
+  },
+  {
+    id: '8',
+    name: 'Claire',
+    age: 23,
+    job: 'University Lecturer',
+    bio: 'Teaching economics at UYI while writing my first novel. I believe the best relationships are built on laughter, respect, and great food.',
+    imageUrl: DEMO_PROFILE_IMAGES.claire,
+    interests: ['Reading', 'Writing', 'Foodie', 'Education'],
+    location: 'Yaoundé',
+    verified: false,
+    distance: 18,
+    lastActive: 'Active 3h ago',
   },
 ];
 
@@ -101,6 +143,9 @@ const INITIAL_SUPER_LIKES: SuperLikeState = {
 };
 
 const App: React.FC = () => {
+  // --- i18n ---
+  const { t, language, setLanguage, interpolate } = useLanguage();
+
   // --- Theme ---
   const [theme, setTheme] = useState<Theme>('rose');
 
@@ -127,6 +172,8 @@ const App: React.FC = () => {
   // --- UI Panels ---
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [isAccountVerified, setIsAccountVerified] = useState(false);
   const [showInfoDrawer, setShowInfoDrawer] = useState(false);
   const [filters, setFilters] = useState<FilterPreferences>(DEFAULT_FILTERS);
 
@@ -157,7 +204,7 @@ const App: React.FC = () => {
     id: 'temp', name: 'User', age: 0, job: '', bio: '', imageUrl: '', interests: []
   }), []);
 
-  const { data: aiData, loading: aiLoading } = useVantageAI(currentUser ?? fallbackUser, currentProfile);
+  const { data: aiData, loading: aiLoading } = useVantageAI(currentUser ?? fallbackUser, currentProfile, language);
 
   // Theme helpers
   const accentColor = theme === 'royal' ? 'text-gold-500' : 'text-rose-500';
@@ -168,12 +215,20 @@ const App: React.FC = () => {
     setTheme(prev => prev === 'royal' ? 'rose' : 'royal');
   }, []);
 
+  const handleToggleLanguage = useCallback(() => {
+    setLanguage(language === 'en' ? 'fr' : 'en');
+  }, [language, setLanguage]);
+
   const handleOnboardingComplete = useCallback((profile: UserProfile) => {
     setCurrentUser(profile);
     setFilters(f => ({ ...f, city: profile.location ?? 'Douala' }));
     setView('app');
-    setTimeout(() => addToast(`Welcome to Vantage, ${profile.name}! 🎉`, 'success'), 500);
-  }, [addToast]);
+    setTimeout(() => {
+      addToast(interpolate(t.toasts.welcome, { name: profile.name }), 'success');
+      // Prompt account verification 1.5s after welcome
+      setTimeout(() => setShowVerification(true), 1500);
+    }, 500);
+  }, [addToast, t, interpolate]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
     if (!currentProfile) return;
@@ -184,7 +239,7 @@ const App: React.FC = () => {
       if (!alreadyMatched) {
         setMatches(prev => [...prev, currentProfile]);
         if (aiData) setMatchAiMap(prev => ({ ...prev, [currentProfile.id]: aiData }));
-        addToast(`You matched with ${currentProfile.name}! 💕`, 'match');
+        addToast(interpolate(t.toasts.matched, { name: currentProfile.name }), 'match');
       }
     }
 
@@ -197,29 +252,28 @@ const App: React.FC = () => {
 
   const handleUndo = useCallback(() => {
     if (undoStack.length === 0) {
-      addToast('Nothing to undo', 'info');
+      addToast(t.toasts.undo_empty, 'info');
       return;
     }
     if (!isPaid) {
       setShowSubscription(true);
-      addToast('Rewind is a premium feature', 'info');
+      addToast(t.toasts.rewind_premium, 'info');
       return;
     }
     const prev = undoStack[undoStack.length - 1];
     setUndoStack(u => u.slice(0, -1));
     setProfileIndex(prev);
-    // Remove from matches if last swipe was right
     if (matches.some(m => m.id === MATCH_PROFILES[prev]?.id)) {
       setMatches(m => m.filter(match => match.id !== MATCH_PROFILES[prev]?.id));
     }
-    addToast('Last swipe undone ↩️', 'info');
-  }, [undoStack, isPaid, matches, addToast]);
+    addToast(t.toasts.undo_done, 'info');
+  }, [undoStack, isPaid, matches, addToast, t]);
 
   const handleSuperLike = useCallback(() => {
     if (!currentProfile) return;
     if (!isPaid) { setShowSubscription(true); return; }
     if (superLikes.remaining <= 0) {
-      addToast('No SuperLikes remaining today. Resets tomorrow.', 'info');
+      addToast(t.toasts.no_super_likes, 'info');
       return;
     }
     setSuperLikes(prev => ({ ...prev, remaining: prev.remaining - 1 }));
@@ -228,24 +282,24 @@ const App: React.FC = () => {
       return [...prev, currentProfile];
     });
     if (aiData) setMatchAiMap(prev => ({ ...prev, [currentProfile.id]: aiData }));
-    addToast(`SuperLike sent to ${currentProfile.name}! ⭐`, 'success');
+    addToast(interpolate(t.toasts.super_like_sent, { name: currentProfile.name }), 'success');
     handleSwipe('right');
-  }, [currentProfile, isPaid, superLikes, aiData, handleSwipe, addToast]);
+  }, [currentProfile, isPaid, superLikes, aiData, handleSwipe, addToast, t, interpolate]);
 
   const handleBoost = useCallback(() => {
     if (!isPaid) { setShowSubscription(true); return; }
-    addToast('Boost activated! Your profile is now front-page for 30 min ⚡', 'success');
-  }, [isPaid, addToast]);
+    addToast(t.toasts.boost_activated, 'success');
+  }, [isPaid, addToast, t]);
 
   const handleSubscriptionSuccess = useCallback((tier: SubscriptionTier) => {
     setSubscriptionTier(tier);
-    addToast(`Welcome to Vantage ${tier.charAt(0).toUpperCase() + tier.slice(1)}! 🎊`, 'success');
-  }, [addToast]);
+    addToast(interpolate(t.toasts.subscription_success, { tier: tier.charAt(0).toUpperCase() + tier.slice(1) }), 'success');
+  }, [addToast, t, interpolate]);
 
   const handleUpdateProfile = useCallback((updated: UserProfile) => {
     setCurrentUser(updated);
-    addToast('Profile updated!', 'success');
-  }, [addToast]);
+    addToast(t.toasts.profile_saved, 'success');
+  }, [addToast, t]);
 
   const openChat = useCallback((profile: UserProfile) => {
     setActiveChatProfile(profile);
@@ -281,7 +335,7 @@ const App: React.FC = () => {
             className="absolute top-0 left-0 right-0 z-40 px-4 py-3 flex justify-between items-center bg-gradient-to-b from-black/90 to-transparent pointer-events-none h-16"
           >
             {/* Left */}
-            <div className="pointer-events-auto">
+            <div className="pointer-events-auto flex items-center gap-1">
               {activeTab === 'discover' && (
                 <button
                   className="p-2 bg-white/10 rounded-full text-slate-300 hover:bg-white/20 transition-colors"
@@ -290,6 +344,15 @@ const App: React.FC = () => {
                   <Shield className="w-5 h-5" />
                 </button>
               )}
+              {/* Language toggle */}
+              <button
+                onClick={handleToggleLanguage}
+                className="p-2 bg-white/10 rounded-full text-slate-300 hover:bg-white/20 transition-colors flex items-center gap-1"
+                title={language === 'en' ? 'Passer en français' : 'Switch to English'}
+              >
+                <Globe className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase">{language === 'en' ? 'FR' : 'EN'}</span>
+              </button>
             </div>
 
             {/* Center */}
@@ -378,16 +441,16 @@ const App: React.FC = () => {
                               </div>
                               <div className={`absolute inset-0 rounded-full animate-ping opacity-15 ${theme === 'royal' ? 'bg-gold-500' : 'bg-rose-500'}`} />
                             </div>
-                            <h3 className="text-xl font-bold mb-2 text-white">You've seen everyone nearby!</h3>
-                            <p className="text-slate-500 mb-6 max-w-xs text-sm">Expand your distance in Settings, or get Passport to match across all of Cameroon.</p>
+                            <h3 className="text-xl font-bold mb-2 text-white">{t.discover.empty_title}</h3>
+                            <p className="text-slate-500 mb-6 max-w-xs text-sm">{t.discover.empty_subtitle}</p>
                             <div className="flex flex-col gap-3 w-full max-w-xs">
                               <button onClick={() => setProfileIndex(0)}
                                 className={`px-8 py-3 rounded-full font-bold text-sm bg-gradient-to-r ${gradientClass} text-white shadow-lg`}>
-                                Review Profiles Again
+                                {t.discover.empty_cta_review}
                               </button>
                               <button onClick={() => setShowSettings(true)}
                                 className="px-8 py-3 rounded-full font-medium text-sm border border-white/20 text-slate-300">
-                                Open Settings
+                                {t.discover.empty_cta_settings}
                               </button>
                             </div>
                           </motion.div>
@@ -404,14 +467,14 @@ const App: React.FC = () => {
                           size="small"
                           onClick={handleUndo}
                           disabled={undoStack.length === 0}
-                          label="Undo"
+                          label={t.buttons.undo}
                         />
                         <GamePadButton
                           icon={<X className="w-8 h-8" />}
                           className="text-red-400 border-red-500/30 bg-black/60"
                           size="large"
                           onClick={() => handleSwipe('left')}
-                          label="Nope"
+                          label={t.buttons.nope}
                         />
                         <GamePadButton
                           icon={<Star className="w-5 h-5" />}
@@ -426,14 +489,14 @@ const App: React.FC = () => {
                           size="large"
                           fill
                           onClick={() => handleSwipe('right')}
-                          label="Like"
+                          label={t.buttons.like}
                         />
                         <GamePadButton
                           icon={<Zap className="w-5 h-5" />}
                           className="text-purple-400 border-purple-500/30 bg-black/60"
                           size="small"
                           onClick={handleBoost}
-                          label="Boost"
+                          label={t.buttons.boost}
                         />
                       </div>
                     )}
@@ -467,8 +530,8 @@ const App: React.FC = () => {
                           <Lock className="w-5 h-5 text-gold-500" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-bold text-gold-400 text-sm">See Who Likes You</p>
-                          <p className="text-xs text-slate-400">Upgrade to Vantage Gold to reveal your secret admirers</p>
+                          <p className="font-bold text-gold-400 text-sm">{t.matches.see_who_likes_title}</p>
+                          <p className="text-xs text-slate-400">{t.matches.see_who_likes_desc}</p>
                         </div>
                         <Star className="w-5 h-5 text-gold-500 fill-current" />
                       </motion.div>
@@ -476,16 +539,16 @@ const App: React.FC = () => {
 
                     {/* New Matches Row */}
                     <div className="px-4 mb-6">
-                      <h3 className={`text-sm font-bold uppercase tracking-wide mb-3 ${accentColor}`}>New Matches</h3>
+                      <h3 className={`text-sm font-bold uppercase tracking-wide mb-3 ${accentColor}`}>{t.matches.new_matches}</h3>
                       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                         <div className="flex flex-col items-center gap-1 min-w-[70px]">
                           <div className={`w-16 h-16 rounded-full border-2 border-dashed border-slate-700 bg-slate-900 flex items-center justify-center ${accentColor}`}>
                             <div className="flex flex-col items-center">
                               <span className="text-lg font-black">12</span>
-                              <span className="text-[8px] font-bold uppercase">Likes</span>
+                              <span className="text-[8px] font-bold uppercase">{t.matches.likes_label}</span>
                             </div>
                           </div>
-                          <span className="text-[10px] text-slate-500 font-bold">Likes</span>
+                          <span className="text-[10px] text-slate-500 font-bold">{t.matches.likes_label}</span>
                         </div>
                         {matches.map(match => (
                           <div key={match.id} onClick={() => openChat(match)} className="flex flex-col items-center gap-1 min-w-[70px] cursor-pointer">
@@ -500,14 +563,14 @@ const App: React.FC = () => {
 
                     {/* Messages */}
                     <div className="px-4 pb-24">
-                      <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500 mb-3">Messages</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500 mb-3">{t.matches.messages}</h3>
                       {matches.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 text-slate-600 text-center">
                           <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mb-4">
                             <Search className="w-8 h-8 opacity-25" />
                           </div>
-                          <p className="text-lg font-bold text-slate-400 mb-1">No matches yet</p>
-                          <p className="text-sm">Start swiping to find your connection!</p>
+                          <p className="text-lg font-bold text-slate-400 mb-1">{t.matches.empty_title}</p>
+                          <p className="text-sm">{t.matches.empty_subtitle}</p>
                         </div>
                       ) : (
                         <div className="flex flex-col gap-1">
@@ -534,7 +597,7 @@ const App: React.FC = () => {
                                     )}
                                   </div>
                                 </div>
-                                <p className="text-sm text-slate-500 truncate">Say hello with a magic icebreaker ✨</p>
+                                <p className="text-sm text-slate-500 truncate">{t.matches.chat_prompt}</p>
                               </div>
                             </motion.button>
                           ))}
@@ -557,8 +620,8 @@ const App: React.FC = () => {
                       {isPaid && (
                         <div className="absolute top-12 right-5 z-10">
                           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-bold text-xs ${subscriptionTier === 'platinum' ? 'border-purple-500/40 bg-purple-500/15 text-purple-300' :
-                              subscriptionTier === 'gold' ? 'border-gold-500/40 bg-gold-500/15 text-gold-400' :
-                                'border-rose-500/40 bg-rose-500/15 text-rose-400'
+                            subscriptionTier === 'gold' ? 'border-gold-500/40 bg-gold-500/15 text-gold-400' :
+                              'border-rose-500/40 bg-rose-500/15 text-rose-400'
                             }`}>
                             {tierIcon[subscriptionTier]}
                             Vantage {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
@@ -586,22 +649,22 @@ const App: React.FC = () => {
 
                       {/* Stats Row */}
                       <div className="flex justify-center gap-8 my-6">
-                        <StatBlock label="Matches" value={matches.length.toString()} />
-                        <StatBlock label="SuperLikes Left" value={isPaid ? superLikes.remaining.toString() : '0'} />
-                        <StatBlock label="Profile Views" value="47" />
+                        <StatBlock label={t.profile.stat_matches} value={matches.length.toString()} />
+                        <StatBlock label={t.profile.stat_super_likes} value={isPaid ? superLikes.remaining.toString() : '0'} />
+                        <StatBlock label={t.profile.stat_profile_views} value="47" />
                       </div>
 
                       {/* Action Buttons */}
                       <div className="flex justify-center gap-6 mb-8">
-                        <ActionButton icon={<Settings className="w-6 h-6" />} label="Settings" onClick={() => setShowSettings(true)} />
+                        <ActionButton icon={<Settings className="w-6 h-6" />} label={t.profile.btn_settings} onClick={() => setShowSettings(true)} />
                         <ActionButton
                           icon={<Shield className="w-8 h-8 fill-current" />}
-                          label={isPaid ? 'Premium ✓' : 'Get Plus'}
+                          label={isPaid ? t.profile.btn_premium : t.profile.btn_get_plus}
                           accent
                           onClick={() => setShowSubscription(true)}
                           theme={theme}
                         />
-                        <ActionButton icon={<Edit3 className="w-6 h-6" />} label="Edit Info" onClick={() => setShowEditProfile(true)} />
+                        <ActionButton icon={<Edit3 className="w-6 h-6" />} label={t.profile.btn_edit} onClick={() => setShowEditProfile(true)} />
                       </div>
 
                       {/* Upgrade Card (if free) */}
@@ -613,14 +676,14 @@ const App: React.FC = () => {
                               <div className="w-12 h-12 bg-gold-500/20 rounded-full flex items-center justify-center mb-3">
                                 <Star className="w-6 h-6 text-gold-500 fill-current" />
                               </div>
-                              <h3 className="font-bold text-xl text-white mb-1">Upgrade to Vantage Gold</h3>
-                              <p className="text-slate-400 text-sm mb-4">See who likes you · Unlimited likes · Magic icebreakers</p>
+                              <h3 className="font-bold text-xl text-white mb-1">{t.profile.upgrade_title}</h3>
+                              <p className="text-slate-400 text-sm mb-4">{t.profile.upgrade_desc}</p>
                               <div className="flex gap-2 items-baseline">
                                 <span className="text-2xl font-black text-gold-400">4,990</span>
-                                <span className="text-slate-400 text-sm">XAF/month</span>
+                                <span className="text-slate-400 text-sm">{t.profile.upgrade_per_month}</span>
                               </div>
                               <button className="mt-4 px-8 py-2.5 rounded-full bg-gradient-to-r from-gold-600 to-gold-500 text-black font-bold text-sm">
-                                View All Plans
+                                {t.profile.upgrade_view_plans}
                               </button>
                             </div>
                           </div>
@@ -630,7 +693,7 @@ const App: React.FC = () => {
                       {/* Interests */}
                       {currentUser.interests.length > 0 && (
                         <div className="mt-6 text-left">
-                          <h3 className="text-xs font-bold uppercase text-slate-500 mb-3">My Interests</h3>
+                          <h3 className="text-xs font-bold uppercase text-slate-500 mb-3">{t.profile.my_interests}</h3>
                           <div className="flex flex-wrap gap-2">
                             {currentUser.interests.map((i, idx) => (
                               <span key={idx} className="px-3 py-1.5 rounded-full bg-slate-800 text-xs font-bold text-slate-300 border border-white/8">
@@ -703,6 +766,23 @@ const App: React.FC = () => {
         onSuccess={handleSubscriptionSuccess}
         currentTier={subscriptionTier}
       />
+
+      {/* Account Verification Modal */}
+      {currentUser && (
+        <AccountVerification
+          isOpen={showVerification}
+          onClose={() => setShowVerification(false)}
+          onVerified={() => {
+            setIsAccountVerified(true);
+            if (currentUser) {
+              setCurrentUser(u => u ? { ...u, verified: true } : u);
+            }
+          }}
+          userName={currentUser.name}
+          userId={currentUser.id}
+          theme={theme}
+        />
+      )}
     </div>
   );
 };
@@ -717,8 +797,8 @@ const StatBlock: React.FC<{ label: string; value: string }> = ({ label, value })
 const ActionButton: React.FC<{ icon: React.ReactNode; label: string; onClick: () => void; accent?: boolean; theme?: Theme }> = ({ icon, label, onClick, accent, theme }) => (
   <div className="flex flex-col items-center gap-2 group cursor-pointer" onClick={onClick}>
     <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg border transition-all ${accent
-        ? `bg-gradient-to-br ${theme === 'royal' ? 'from-gold-600 to-gold-400' : 'from-rose-500 to-orange-500'} text-white border-transparent -mt-6 w-16 h-16 shadow-xl`
-        : 'bg-slate-900 text-slate-400 border-white/5 group-hover:bg-slate-800 group-hover:text-white'
+      ? `bg-gradient-to-br ${theme === 'royal' ? 'from-gold-600 to-gold-400' : 'from-rose-500 to-orange-500'} text-white border-transparent -mt-6 w-16 h-16 shadow-xl`
+      : 'bg-slate-900 text-slate-400 border-white/5 group-hover:bg-slate-800 group-hover:text-white'
       }`}>
       {icon}
     </div>
