@@ -41,8 +41,11 @@ try {
     : initializeApp(firebaseConfig);
 } catch (error) {
   console.error('[Firebase] Initialization failed:', error);
-  // Re-throw so ErrorBoundary can catch it if it happens during boot
-  throw error;
+  // Do NOT re-throw here — throwing at module import time means the error
+  // happens before React mounts, so ErrorBoundary cannot catch it and the
+  // user sees a blank white screen. All service functions check
+  // isFirebaseConfigured() before making Firestore/Auth calls.
+  app = {} as FirebaseApp; // safe dummy so exports don't fail
 }
 
 

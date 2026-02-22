@@ -2,13 +2,13 @@
   publish = "dist"
   command = "npm run build"
 
-# SPA fallback — must come FIRST before headers
+# SPA fallback — sends all routes to index.html so React Router works
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Security headers for all routes
+# Security headers (lightweight — CSP omitted to avoid blocking app assets)
 [[headers]]
   for = "/*"
   [headers.values]
@@ -16,17 +16,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = """
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: blob: https://res.cloudinary.com https://firebasestorage.googleapis.com https://lh3.googleusercontent.com;
-      connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://generativelanguage.googleapis.com https://api.cloudinary.com https://live.fapshi.com https://sandbox.fapshi.com;
-      frame-ancestors 'none';
-    """
 
-# Long-term caching for hashed static assets
+# Long-term caching for hashed static assets (safe — filenames change on rebuild)
 [[headers]]
   for = "/assets/*"
   [headers.values]
