@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, CheckCircle, Loader2, Smartphone, Shield, Zap, Crown, ChevronRight } from 'lucide-react';
 import { PaymentStatus, SUBSCRIPTION_PLANS, SubscriptionTier, SubscriptionPlan } from '../types';
-import { processMoMoPayment } from '../services/momoService';
+import { processSubscriptionPayment } from '../services/fapshiService';
 
 interface SubscriptionModalProps {
     isOpen: boolean;
@@ -42,7 +42,12 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
         setError(null);
         try {
             const total = billingCycle === 'annual' ? price * 12 : price;
-            await processMoMoPayment(phoneNumber, total);
+            const result = await processSubscriptionPayment(
+                phoneNumber,
+                selectedPlan.tier,
+                total,
+            );
+            if (!result.success) throw new Error(result.error || 'Payment was declined.');
             setStatus(PaymentStatus.SUCCESS);
             setTimeout(() => {
                 onSuccess(selectedPlan.tier);
@@ -294,8 +299,8 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
                                                     onClick={handlePayment}
                                                     disabled={status === PaymentStatus.PROCESSING || !isValidPhone}
                                                     className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${status === PaymentStatus.PROCESSING || !isValidPhone
-                                                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                                                            : 'text-white shadow-xl'
+                                                        ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                                                        : 'text-white shadow-xl'
                                                         }`}
                                                     style={status !== PaymentStatus.PROCESSING && isValidPhone ? {
                                                         background: `linear-gradient(135deg, ${selectedPlan.color}, ${selectedPlan.color}bb)`

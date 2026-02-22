@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, CAMEROON_CITIES } from '../types';
-import { Camera, ArrowRight, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { Camera, ArrowRight, ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { uploadProfilePhoto } from '../services/cloudinaryService';
 
 interface OnboardingProps {
   onComplete: (profile: UserProfile) => void;
@@ -20,20 +21,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [formData, setFormData] = useState({ name: '', age: '', job: '', bio: '', gender: '' as 'male' | 'female' | 'other' | '' });
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [city, setCity] = useState('Douala');
   const [ageError, setAgeError] = useState('');
+  const [uploadError, setUploadError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentStepIndex = STEPS.indexOf(step);
-  const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { setUploadError('Photo must be under 10 MB'); return; }
+    if (!file.type.startsWith('image/')) { setUploadError('Please select an image file'); return; }
+    setUploadError('');
+    setSelectedFile(file);
+    // Show local preview immediately
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (ev.target?.result) setImageUrl(ev.target.result as string);
-    };
+    reader.onload = (ev) => { if (ev.target?.result) setImageUrl(ev.target.result as string); };
     reader.readAsDataURL(file);
   };
 
@@ -54,11 +60,11 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     return true;
   };
 
-  const goNext = () => {
+  const goNext = async () => {
     if (step === 'account' && !validateAccount()) return;
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < STEPS.length) setStep(STEPS[nextIndex]);
-    else handleSubmit();
+    else await handleSubmit();
   };
 
   const goBack = () => {
@@ -66,10 +72,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     if (prevIndex >= 0) setStep(STEPS[prevIndex]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setUploading(true);
+    let finalImageUrl = imageUrl;
+
+    // Upload photo to Cloudinary/Firebase if a file was selected
+    if (selectedFile) {
+      try {
+        const result = await uploadProfilePhoto(selectedFile);
+        finalImageUrl = result.url;
+      } catch (err) {
+        console.warn('[Onboarding] Photo upload failed, using local preview:', err);
+        // Keep local base64 preview as fallback
+      }
+    }
+
     const displayName = formData.name.trim();
-    const avatarUrl = imageUrl ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=FD297B&color=fff&size=400&bold=true`;
+    if (!finalImageUrl) {
+      finalImageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=FD297B&color=fff&size=400&bold=true`;
+    }
 
     const newProfile: UserProfile = {
       id: `user-${Date.now()}`,
@@ -77,12 +98,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       age: parseInt(formData.age),
       job: formData.job || 'Professional',
       bio: formData.bio || 'Ready to find a genuine connection.',
-      imageUrl: avatarUrl,
+      imageUrl: finalImageUrl,
       interests: selectedInterests.length > 0 ? selectedInterests : ['General'],
       location: city,
       gender: formData.gender || 'other',
       verified: false,
     };
+    setUploading(false);
     onComplete(newProfile);
   };
 
@@ -95,19 +117,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   return (
     <div className="h-full w-full flex flex-col bg-slate-950 overflow-hidden">
-      {/* Progress Bar */}
-      <div className="h-1 bg-slate-800">
-        <motion.div
-          className="h-full bg-gradient-to-r from-rose-500 to-rose-400"
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.4 }}
-        />
-      </div>
-
-      {/* Header */}
-      <div className="flex items-center px-5 pt-5 pb-2">
+      {/* Step indicator dots */}
+      <div className="flex items-center px-5 pt-12 pb-2 gap-2">
         {currentStepIndex > 0 ? (
-          <button onClick={goBack} className="p-2 rounded-full hover:bg-white/5 text-slate-400 mr-2">
+          <button onClick={goBack} className="p-2 rounded-full hover:bg-white/5 text-slate-400 mr-1">
             <ArrowLeft className="w-5 h-5" />
           </button>
         ) : <div className="w-9" />}
@@ -126,11 +139,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25 }}
-            className="px-5 pt-6 pb-32"
+            className="px-5 pt-6 pb-36"
           >
 
             {/* STEP 1: Account */}
@@ -162,8 +173,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                           key={g}
                           onClick={() => setFormData(p => ({ ...p, gender: g }))}
                           className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize transition-all border ${formData.gender === g
-                              ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-900/20'
-                              : 'bg-slate-900 text-slate-400 border-white/10'
+                            ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-900/20'
+                            : 'bg-slate-900 text-slate-400 border-white/10'
                             }`}
                         >
                           {g.charAt(0).toUpperCase() + g.slice(1)}
@@ -190,13 +201,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-3xl font-serif font-bold text-white mb-1">Add your best photo</h2>
-                  <p className="text-slate-400 text-sm">Profiles with photos get 5x more matches.</p>
+                  <p className="text-slate-400 text-sm">Profiles with photos get 5× more matches.</p>
                 </div>
                 <div className="relative">
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
                   {imageUrl ? (
                     <div className="relative group">
-                      <img src={imageUrl} className="w-full h-80 object-cover rounded-2xl border border-white/10" />
+                      <img src={imageUrl} className="w-full h-80 object-cover rounded-2xl border border-white/10" alt="Preview" />
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
@@ -221,7 +232,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     </button>
                   )}
                 </div>
-                <p className="text-center text-slate-600 text-xs">You can skip this and add a photo later.</p>
+                {uploadError && <p className="text-red-400 text-xs text-center">{uploadError}</p>}
+                <p className="text-center text-slate-600 text-xs">Photo uploaded securely. You can skip and add later.</p>
               </div>
             )}
 
@@ -241,8 +253,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         whileTap={{ scale: 0.92 }}
                         onClick={() => toggleInterest(interest)}
                         className={`px-4 py-2.5 rounded-full text-sm font-bold transition-all border ${selected
-                            ? 'bg-rose-600 text-white border-rose-500 shadow-lg'
-                            : 'bg-slate-900 text-slate-400 border-white/10 hover:border-white/20'
+                          ? 'bg-rose-600 text-white border-rose-500 shadow-lg'
+                          : 'bg-slate-900 text-slate-400 border-white/10 hover:border-white/20'
                           }`}
                       >
                         {interest}
@@ -251,8 +263,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   })}
                 </div>
                 <p className={`text-center text-sm font-bold ${selectedInterests.length >= 2 ? 'text-green-400' : 'text-slate-500'}`}>
-                  {selectedInterests.length}/6 selected
-                  {selectedInterests.length >= 2 && ' ✓'}
+                  {selectedInterests.length}/6 selected{selectedInterests.length >= 2 && ' ✓'}
                 </p>
               </div>
             )}
@@ -271,8 +282,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setCity(c)}
                       className={`py-3 px-4 rounded-xl text-sm font-bold text-left transition-all border ${city === c
-                          ? 'bg-rose-600/20 border-rose-500 text-white'
-                          : 'bg-slate-900 border-white/10 text-slate-400 hover:border-white/20'
+                        ? 'bg-rose-600/20 border-rose-500 text-white'
+                        : 'bg-slate-900 border-white/10 text-slate-400 hover:border-white/20'
                         }`}
                     >
                       {city === c && <span className="mr-1.5">📍</span>}{c}
@@ -289,17 +300,20 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <div className="absolute bottom-0 left-0 right-0 p-5 bg-slate-950/95 border-t border-white/5 backdrop-blur-md">
         <motion.button
           onClick={goNext}
-          disabled={!canProceed()}
+          disabled={!canProceed() || uploading}
           whileTap={{ scale: canProceed() ? 0.96 : 1 }}
-          className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${canProceed()
-              ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-xl shadow-rose-900/30'
-              : 'bg-white/8 text-slate-500 cursor-not-allowed'
+          className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${canProceed() && !uploading
+            ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-xl shadow-rose-900/30'
+            : 'bg-white/8 text-slate-500 cursor-not-allowed'
             }`}
         >
-          {step === 'location' ? 'Start Matching' : 'Continue'}
-          <ArrowRight className="w-5 h-5" />
+          {uploading ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Uploading photo...</>
+          ) : (
+            <>{step === 'location' ? 'Start Matching' : 'Continue'} <ArrowRight className="w-5 h-5" /></>
+          )}
         </motion.button>
-        {step === 'photos' && (
+        {step === 'photos' && !uploading && (
           <button onClick={goNext} className="w-full text-center text-sm text-slate-500 mt-3 font-medium">
             Skip for now
           </button>

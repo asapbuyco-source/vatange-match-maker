@@ -187,11 +187,12 @@ export const processVerificationPayment = async (
 };
 
 // ---- Convenience: Subscription Payment ----
+// Signature: (phone, tierName, amount, userName?, userId?)
 export const processSubscriptionPayment = async (
     phone: string,
-    amount: number,
     tierName: string,
-    userName: string,
+    amount: number,
+    userName?: string,
     userId?: string,
 ): Promise<PaymentResult> => {
     return processFapshiPayment({

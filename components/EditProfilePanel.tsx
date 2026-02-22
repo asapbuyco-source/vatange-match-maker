@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, ArrowRight, CheckCircle } from 'lucide-react';
+import { X, Camera, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import { UserProfile, Theme } from '../types';
+import { uploadProfilePhoto } from '../services/cloudinaryService';
 
 interface EditProfilePanelProps {
     isOpen: boolean;
@@ -25,7 +26,10 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
     });
     const [selectedInterests, setSelectedInterests] = useState<string[]>(currentUser.interests);
     const [imageUrl, setImageUrl] = useState(currentUser.imageUrl);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [saved, setSaved] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const accent = theme === 'royal' ? 'text-gold-500' : 'text-rose-500';
@@ -35,14 +39,13 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
     const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Photo must be under 5MB');
-            return;
-        }
+        if (file.size > 10 * 1024 * 1024) { setUploadError('Photo must be under 10 MB'); return; }
+        if (!file.type.startsWith('image/')) { setUploadError('Please select an image file'); return; }
+        setUploadError('');
+        setSelectedFile(file);
+        // Show local preview immediately
         const reader = new FileReader();
-        reader.onload = (ev) => {
-            if (ev.target?.result) setImageUrl(ev.target.result as string);
-        };
+        reader.onload = (ev) => { if (ev.target?.result) setImageUrl(ev.target.result as string); };
         reader.readAsDataURL(file);
     };
 
@@ -54,7 +57,21 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!formData.name) return;
+        setUploading(true);
+        let finalImageUrl = imageUrl;
+
+        if (selectedFile) {
+            try {
+                const result = await uploadProfilePhoto(selectedFile);
+                finalImageUrl = result.url;
+            } catch (err) {
+                console.warn('[EditProfile] Photo upload failed, keeping current photo:', err);
+                setUploadError('Photo upload failed — other changes saved.');
+            }
+        }
+
         const updated: UserProfile = {
             ...currentUser,
             name: formData.name || currentUser.name,
@@ -62,14 +79,12 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
             job: formData.job || currentUser.job,
             bio: formData.bio || currentUser.bio,
             interests: selectedInterests.length > 0 ? selectedInterests : currentUser.interests,
-            imageUrl,
+            imageUrl: finalImageUrl,
         };
+        setUploading(false);
         onSave(updated);
         setSaved(true);
-        setTimeout(() => {
-            setSaved(false);
-            onClose();
-        }, 1200);
+        setTimeout(() => { setSaved(false); onClose(); }, 1200);
     };
 
     return (
@@ -77,9 +92,7 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
             {isOpen && (
                 <motion.div
                     key="edit-profile"
-                    initial={{ x: '100%' }}
-                    animate={{ x: 0 }}
-                    exit={{ x: '100%' }}
+                    initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                     className="absolute inset-0 z-50 bg-slate-950 flex flex-col overflow-hidden"
                 >
@@ -91,11 +104,10 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                         <h2 className="font-bold text-lg text-white">Edit Profile</h2>
                         <button
                             onClick={handleSave}
-                            disabled={!formData.name}
-                            className={`text-sm font-bold px-4 py-1.5 rounded-full transition-all ${formData.name ? `${accentBg} text-white` : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                                }`}
+                            disabled={!formData.name || uploading}
+                            className={`text-sm font-bold px-4 py-1.5 rounded-full transition-all ${formData.name && !uploading ? `${accentBg} text-white` : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
                         >
-                            {saved ? <CheckCircle className="w-4 h-4" /> : 'Save'}
+                            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle className="w-4 h-4" /> : 'Save'}
                         </button>
                     </div>
 
@@ -108,9 +120,14 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                                     <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-white/10">
                                         <img src={imageUrl} alt="Profile" className="w-full h-full object-cover" />
                                     </div>
+                                    {uploading && (
+                                        <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/60">
+                                            <Loader2 className="w-7 h-7 text-white animate-spin" />
+                                        </div>
+                                    )}
                                     <button
                                         onClick={() => fileInputRef.current?.click()}
-                                        className={`absolute inset-0 rounded-full flex flex-col items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity`}
+                                        className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
                                         <Camera className="w-7 h-7 text-white mb-1" />
                                         <span className="text-[10px] text-white font-bold uppercase">Change</span>
@@ -121,41 +138,17 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                                     >
                                         <Camera className="w-4 h-4 text-white" />
                                     </button>
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handlePhotoSelect}
-                                        className="hidden"
-                                    />
+                                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoSelect} className="hidden" />
                                 </div>
                             </div>
+                            {uploadError && <p className="text-center text-red-400 text-xs">{uploadError}</p>}
 
                             {/* Fields */}
                             <div className="space-y-4">
-                                <FormField
-                                    label="Name"
-                                    value={formData.name}
-                                    onChange={(v) => setFormData(p => ({ ...p, name: v }))}
-                                    placeholder="Your name"
-                                    theme={theme}
-                                />
+                                <FormField label="Name" value={formData.name} onChange={(v) => setFormData(p => ({ ...p, name: v }))} placeholder="Your name" theme={theme} />
                                 <div className="grid grid-cols-2 gap-4">
-                                    <FormField
-                                        label="Age"
-                                        value={formData.age}
-                                        onChange={(v) => setFormData(p => ({ ...p, age: v }))}
-                                        placeholder="25"
-                                        type="number"
-                                        theme={theme}
-                                    />
-                                    <FormField
-                                        label="Job Title"
-                                        value={formData.job}
-                                        onChange={(v) => setFormData(p => ({ ...p, job: v }))}
-                                        placeholder="e.g. Engineer"
-                                        theme={theme}
-                                    />
+                                    <FormField label="Age" value={formData.age} onChange={(v) => setFormData(p => ({ ...p, age: v }))} placeholder="25" type="number" theme={theme} />
+                                    <FormField label="Job Title" value={formData.job} onChange={(v) => setFormData(p => ({ ...p, job: v }))} placeholder="e.g. Engineer" theme={theme} />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Bio</label>
@@ -182,9 +175,8 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                                             key={interest}
                                             onClick={() => toggleInterest(interest)}
                                             className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${selectedInterests.includes(interest)
-                                                    ? `${accentBorder} text-white`
-                                                    : 'bg-slate-900 text-slate-400 border-white/10 hover:border-white/20'
-                                                }`}
+                                                ? `${accentBorder} text-white`
+                                                : 'bg-slate-900 text-slate-400 border-white/10 hover:border-white/20'}`}
                                         >
                                             {interest}
                                         </button>
@@ -195,13 +187,14 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                             {/* Save CTA */}
                             <button
                                 onClick={handleSave}
-                                disabled={!formData.name}
-                                className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${formData.name
-                                        ? `${accentBg} text-white shadow-lg`
-                                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                                    }`}
+                                disabled={!formData.name || uploading}
+                                className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${formData.name && !uploading
+                                    ? `${accentBg} text-white shadow-lg`
+                                    : 'bg-slate-800 text-slate-500 cursor-not-allowed'}`}
                             >
-                                {saved ? (
+                                {uploading ? (
+                                    <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+                                ) : saved ? (
                                     <><CheckCircle className="w-5 h-5" /> Saved!</>
                                 ) : (
                                     <>Save Changes <ArrowRight className="w-5 h-5" /></>
@@ -215,17 +208,10 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
     );
 };
 
-const FormField: React.FC<{
-    label: string; value: string; onChange: (v: string) => void;
-    placeholder: string; type?: string; theme: Theme;
-}> = ({ label, value, onChange, placeholder, type = 'text' }) => (
+const FormField: React.FC<{ label: string; value: string; onChange: (v: string) => void; placeholder: string; type?: string; theme: Theme }> = ({ label, value, onChange, placeholder, type = 'text' }) => (
     <div>
         <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">{label}</label>
-        <input
-            type={type}
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            placeholder={placeholder}
+        <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
             className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white focus:border-white/30 outline-none transition-all placeholder:text-slate-600"
         />
     </div>

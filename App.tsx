@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { UserProfile, Theme, FilterPreferences, SubscriptionTier, ToastMessage, SuperLikeState } from './types';
 import { useVantageAI } from './hooks/useVantageAI';
 import { useLanguage } from './i18n/LanguageContext';
 import { DEMO_PROFILE_IMAGES } from './constants/africanImages';
+import { upsertProfile, createMatch } from './services/firebaseService';
 import MatchCard from './components/MatchCard';
 import SubscriptionModal from './components/SubscriptionModal';
 import ChatWindow from './components/ChatWindow';
@@ -146,8 +147,8 @@ const App: React.FC = () => {
   // --- i18n ---
   const { t, language, setLanguage, interpolate } = useLanguage();
 
-  // --- Theme ---
-  const [theme, setTheme] = useState<Theme>('rose');
+  // --- Theme (persisted) ---
+  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('vantage_theme') as Theme) || 'rose');
 
   // --- Navigation ---
   const [view, setView] = useState<'landing' | 'onboarding' | 'app'>('landing');
@@ -212,17 +213,38 @@ const App: React.FC = () => {
 
   // --- Handlers ---
   const handleToggleTheme = useCallback(() => {
-    setTheme(prev => prev === 'royal' ? 'rose' : 'royal');
+    setTheme(prev => {
+      const next = prev === 'royal' ? 'rose' : 'royal';
+      localStorage.setItem('vantage_theme', next);
+      return next;
+    });
   }, []);
 
   const handleToggleLanguage = useCallback(() => {
     setLanguage(language === 'en' ? 'fr' : 'en');
   }, [language, setLanguage]);
 
-  const handleOnboardingComplete = useCallback((profile: UserProfile) => {
+  const handleOnboardingComplete = useCallback(async (profile: UserProfile) => {
     setCurrentUser(profile);
     setFilters(f => ({ ...f, city: profile.location ?? 'Douala' }));
     setView('app');
+
+    // Persist to Firestore (non-blocking)
+    upsertProfile({
+      id: profile.id,
+      name: profile.name,
+      age: profile.age,
+      job: profile.job,
+      bio: profile.bio,
+      image_url: profile.imageUrl,
+      interests: profile.interests,
+      location: profile.location ?? 'Douala',
+      gender: (profile.gender as 'male' | 'female' | 'other') || 'other',
+      verified: false,
+      subscription_tier: 'free',
+      last_active: new Date().toISOString(),
+    }).catch(err => console.warn('[App] Profile persist failed:', err));
+
     setTimeout(() => {
       addToast(interpolate(t.toasts.welcome, { name: profile.name }), 'success');
       // Prompt account verification 1.5s after welcome
@@ -240,6 +262,13 @@ const App: React.FC = () => {
         setMatches(prev => [...prev, currentProfile]);
         if (aiData) setMatchAiMap(prev => ({ ...prev, [currentProfile.id]: aiData }));
         addToast(interpolate(t.toasts.matched, { name: currentProfile.name }), 'match');
+        // Persist match to Firestore
+        if (currentUser) {
+          const matchDocId = [currentUser.id, currentProfile.id].sort().join('_');
+          createMatch(currentUser.id, matchDocId, aiData?.score).catch(err =>
+            console.warn('[App] createMatch failed:', err)
+          );
+        }
       }
     }
 
@@ -248,7 +277,7 @@ const App: React.FC = () => {
       setProfileIndex(prev => prev + 1);
       setExitDirection(null);
     }, 220);
-  }, [currentProfile, matches, aiData, profileIndex, addToast]);
+  }, [currentProfile, currentUser, matches, aiData, profileIndex, addToast]);
 
   const handleUndo = useCallback(() => {
     if (undoStack.length === 0) {
@@ -299,7 +328,22 @@ const App: React.FC = () => {
   const handleUpdateProfile = useCallback((updated: UserProfile) => {
     setCurrentUser(updated);
     addToast(t.toasts.profile_saved, 'success');
-  }, [addToast, t]);
+    // Persist to Firestore
+    upsertProfile({
+      id: updated.id,
+      name: updated.name,
+      age: updated.age,
+      job: updated.job,
+      bio: updated.bio,
+      image_url: updated.imageUrl,
+      interests: updated.interests,
+      location: updated.location ?? 'Douala',
+      gender: (updated.gender as 'male' | 'female' | 'other') || 'other',
+      verified: updated.verified ?? false,
+      subscription_tier: subscriptionTier,
+      last_active: new Date().toISOString(),
+    }).catch(err => console.warn('[App] Profile update persist failed:', err));
+  }, [addToast, t, subscriptionTier]);
 
   const openChat = useCallback((profile: UserProfile) => {
     setActiveChatProfile(profile);
@@ -725,6 +769,8 @@ const App: React.FC = () => {
               matchProfile={activeChatProfile}
               aiData={matchAiMap[activeChatProfile.id] || null}
               subscriptionTier={subscriptionTier}
+              currentUserId={currentUser?.id ?? 'anon'}
+              matchId={[currentUser?.id ?? 'anon', activeChatProfile.id].sort().join('_')}
               onUnlockClick={() => setShowSubscription(true)}
               onBack={() => setActiveChatProfile(null)}
               theme={theme}

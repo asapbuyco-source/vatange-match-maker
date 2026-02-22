@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Heart, Shield, ArrowRight, MessageCircle, Mail, Phone, MapPin, ChevronDown, Palette, CheckCircle } from 'lucide-react';
+import { Sparkles, Heart, Shield, ArrowRight, MessageCircle, Mail, Phone, MapPin, ChevronDown, Palette, CheckCircle, MessageSquare, Send } from 'lucide-react';
 import { Theme } from '../types';
 
 interface LandingPageProps {
@@ -8,6 +8,8 @@ interface LandingPageProps {
   currentTheme: Theme;
   onToggleTheme: () => void;
 }
+
+const WHATSAPP_NUMBER = '237657960690';
 
 const FAQ_ITEMS = [
   { q: 'Is Vantage Match available across Cameroon?', a: 'Yes! We serve all major cities including Douala, Yaoundé, Bafoussam, Bamenda, Garoua, and more. Our Passport feature lets you connect with people across the whole country.' },
@@ -18,8 +20,8 @@ const FAQ_ITEMS = [
 
 const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onToggleTheme }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [formSent, setFormSent] = useState(false);
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', message: '' });
+  const [contactData, setContactData] = useState({ name: '', message: '' });
+  const [sent, setSent] = useState(false);
 
   const isRoyal = currentTheme === 'royal';
   const accent = isRoyal ? 'text-gold-500' : 'text-rose-500';
@@ -32,12 +34,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleWhatsAppSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email || !formData.message) return;
-    setFormSent(true);
-    setTimeout(() => setFormSent(false), 4000);
-    setFormData({ firstName: '', lastName: '', email: '', message: '' });
+    if (!contactData.message.trim()) return;
+    const greeting = contactData.name ? `Hi, I'm *${contactData.name.trim()}*.\n\n` : '';
+    const text = encodeURIComponent(`${greeting}${contactData.message.trim()}`);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, '_blank');
+    setSent(true);
+    setContactData({ name: '', message: '' });
+    setTimeout(() => setSent(false), 5000);
   };
 
   return (
@@ -56,7 +61,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
             {['home', 'stories', 'features', 'contact'].map(s => (
               <button key={s} onClick={() => scrollTo(s)} className="hover:text-white transition-colors capitalize">
-                {s === 'stories' ? 'Stories' : s.charAt(0).toUpperCase() + s.slice(1)}
+                {s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
             ))}
             <button onClick={() => scrollTo('faq')} className="hover:text-white transition-colors">FAQ</button>
@@ -107,11 +112,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
           {/* Social Proof */}
           <div className="flex items-center gap-6 mt-8">
             <div className="flex -space-x-2">
-              {['https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face',
+              {[
+                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face',
                 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=40&h=40&fit=crop&crop=face',
                 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=40&h=40&fit=crop&crop=face',
               ].map((url, i) => (
-                <img key={i} src={url} className="w-8 h-8 rounded-full border-2 border-black object-cover" />
+                <img key={i} src={url} className="w-8 h-8 rounded-full border-2 border-black object-cover" alt="user" />
               ))}
             </div>
             <p className="text-sm text-slate-400"><span className="text-white font-bold">10,000+</span> matches made in Cameroon</p>
@@ -201,16 +207,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* CONTACT → WhatsApp */}
       <section id="contact" className={`py-24 px-6 ${isRoyal ? 'bg-purple-900/10' : 'bg-rose-900/10'}`}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
             <h2 className="font-serif text-5xl font-bold mb-6">Get in Touch</h2>
-            <p className="text-slate-300 mb-8 text-lg leading-relaxed">Have a success story? Need support? We'd love to hear from you.</p>
+            <p className="text-slate-300 mb-8 text-lg leading-relaxed">
+              Have a question, a success story, or need support? Send us a message directly on WhatsApp — we reply fast! 🇨🇲
+            </p>
             <div className="space-y-5">
-              {[{ icon: <Mail className="w-5 h-5" />, label: 'Email Us', value: 'hello@vantage.cm' },
-              { icon: <Phone className="w-5 h-5" />, label: 'Call Us', value: '+237 6XX XXX XXX' },
-              { icon: <MapPin className="w-5 h-5" />, label: 'Based In', value: 'Douala, Cameroon 🇨🇲' }
+              {[
+                { icon: <Phone className="w-5 h-5" />, label: 'WhatsApp', value: '+237 657 960 690' },
+                { icon: <Mail className="w-5 h-5" />, label: 'Email Us', value: 'hello@vantage.cm' },
+                { icon: <MapPin className="w-5 h-5" />, label: 'Based In', value: 'Douala, Cameroon 🇨🇲' },
               ].map(item => (
                 <div key={item.label} className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center border border-white/10 ${accentBg} bg-opacity-20`}>{item.icon}</div>
@@ -222,28 +231,64 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
               ))}
             </div>
           </div>
+
+          {/* WhatsApp Message Form */}
           <div className={`p-8 rounded-3xl border border-white/8 ${isRoyal ? 'bg-slate-900' : 'bg-[#1a0505]'}`}>
             <AnimatePresence mode="wait">
-              {formSent ? (
-                <motion.div key="sent" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center py-12">
-                  <CheckCircle className="w-16 h-16 text-green-400 mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Message Sent!</h3>
-                  <p className="text-slate-400 text-center">Thanks for reaching out. We'll reply within 24 hours.</p>
+              {sent ? (
+                <motion.div key="sent" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                  className="flex flex-col items-center py-12"
+                >
+                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                    <CheckCircle className="w-10 h-10 text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Opening WhatsApp…</h3>
+                  <p className="text-slate-400 text-center text-sm">Your message is pre-filled. Just tap Send in WhatsApp!</p>
                 </motion.div>
               ) : (
-                <motion.form key="form" onSubmit={handleFormSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <ContactField label="First Name" value={formData.firstName} onChange={v => setFormData(p => ({ ...p, firstName: v }))} placeholder="Jane" />
-                    <ContactField label="Last Name" value={formData.lastName} onChange={v => setFormData(p => ({ ...p, lastName: v }))} placeholder="Doe" />
+                <motion.form key="form" onSubmit={handleWhatsAppSend} className="space-y-5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+                      <MessageSquare className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-sm">Send via WhatsApp</p>
+                      <p className="text-xs text-slate-400">We reply within minutes 🟢</p>
+                    </div>
                   </div>
-                  <ContactField label="Email" value={formData.email} onChange={v => setFormData(p => ({ ...p, email: v }))} placeholder="jane@example.com" type="email" />
+
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase text-slate-500">Message</label>
-                    <textarea value={formData.message} onChange={e => setFormData(p => ({ ...p, message: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 h-32 resize-none focus:outline-none focus:border-white/30 text-white placeholder:text-slate-600" placeholder="How can we help?" />
+                    <label className="text-xs font-bold uppercase text-slate-500">Your Name (optional)</label>
+                    <input
+                      type="text"
+                      value={contactData.name}
+                      onChange={e => setContactData(p => ({ ...p, name: e.target.value }))}
+                      placeholder="e.g. Sofia"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-slate-600"
+                    />
                   </div>
-                  <button type="submit" className={`w-full py-4 rounded-xl font-bold transition-all hover:scale-[1.02] ${btnColor}`}>
-                    Send Message
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase text-slate-500">Your Message *</label>
+                    <textarea
+                      value={contactData.message}
+                      onChange={e => setContactData(p => ({ ...p, message: e.target.value }))}
+                      required
+                      rows={5}
+                      placeholder="Hi Vantage! I have a question about..."
+                      className="w-full bg-white/5 border border-white/10 rounded-xl p-3 resize-none focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-slate-600"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={!contactData.message.trim()}
+                    className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${isRoyal ? 'bg-gold-500 text-black' : 'bg-green-500 hover:bg-green-400 text-white'}`}
+                  >
+                    <Send className="w-5 h-5" />
+                    Send on WhatsApp
                   </button>
+                  <p className="text-center text-slate-600 text-xs">Opens WhatsApp with your message pre-filled.</p>
                 </motion.form>
               )}
             </AnimatePresence>
@@ -284,14 +329,6 @@ const StoryCard = ({ image, names, city, quote, theme }: { image: string; names:
       <p className="text-slate-400 italic leading-relaxed text-sm">"{quote}"</p>
     </div>
   </motion.div>
-);
-
-const ContactField = ({ label, value, onChange, placeholder, type = 'text' }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; type?: string }) => (
-  <div className="space-y-2">
-    <label className="text-xs font-bold uppercase text-slate-500">{label}</label>
-    <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-      className="w-full bg-white/5 border border-white/10 rounded-xl p-3 focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-slate-600" />
-  </div>
 );
 
 export default LandingPage;
