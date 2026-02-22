@@ -5,6 +5,7 @@ import './index.css';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { auth, isFirebaseConfigured } from './services/firebaseApp';
 import { signInAnonymously } from 'firebase/auth';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Sign in anonymously so Firestore security rules (require auth != null) work.
 // This gives every visitor a stable UID without a sign-up screen.
@@ -14,10 +15,18 @@ if (isFirebaseConfigured()) {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Failed to find the root element. Make sure index.html has a div with id="root".');
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
+    <ErrorBoundary>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
+

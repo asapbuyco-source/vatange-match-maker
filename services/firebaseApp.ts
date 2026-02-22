@@ -19,18 +19,32 @@ import { getAuth, type Auth } from 'firebase/auth';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Check if critical config is missing and log a clear error
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error('[Firebase] Critical configuration missing. Check your environment variables (VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID).');
+}
+
 // Guard against double-initialization in Vite HMR
-const app: FirebaseApp = getApps().length
-  ? getApps()[0]
-  : initializeApp(firebaseConfig);
+let app: FirebaseApp;
+
+try {
+  app = getApps().length
+    ? getApps()[0]
+    : initializeApp(firebaseConfig);
+} catch (error) {
+  console.error('[Firebase] Initialization failed:', error);
+  // Re-throw so ErrorBoundary can catch it if it happens during boot
+  throw error;
+}
+
 
 export const db: Firestore = getFirestore(app);
 export const auth: Auth = getAuth(app);
