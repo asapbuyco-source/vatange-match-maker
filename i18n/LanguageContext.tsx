@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { translations, Language } from './translations';
+import { translations, Language, TranslationSchema } from './translations';
 
 interface LanguageContextValue {
     language: Language;
     setLanguage: (lang: Language) => void;
-    t: typeof translations.en;
+    t: TranslationSchema;
     /** Helper for strings with placeholders like "Welcome, {{name}}" */
     interpolate: (str: string, vars: Record<string, string | number>) => string;
 }

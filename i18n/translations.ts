@@ -98,6 +98,23 @@ export const translations = {
         // --- Onboarding ---
         onboarding: {
             step_of: 'of',
+            welcome_slides: [
+                {
+                    title: 'Welcome to Vantage',
+                    description: "Cameroon's premier dating experience. We're here to help you find meaningful connections that last.",
+                    cta: 'Show Me More'
+                },
+                {
+                    title: 'AI-Powered Matching',
+                    description: 'Our advanced Gemini AI analyzes your personality and interests to find your most compatible matches.',
+                    cta: 'Tell Me More'
+                },
+                {
+                    title: 'Safe & Verified',
+                    description: 'Every profile is identity-verified. No bots, no fakes—just real people looking for real love.',
+                    cta: 'Get Started'
+                }
+            ],
             steps: {
                 account: 'Account',
                 photos: 'Photos',
@@ -403,6 +420,23 @@ export const translations = {
 
         onboarding: {
             step_of: 'sur',
+            welcome_slides: [
+                {
+                    title: 'Bienvenue sur Vantage',
+                    description: "L'expérience de rencontre par excellence au Cameroun. Nous sommes là pour vous aider à trouver des connexions durables.",
+                    cta: 'En savoir plus'
+                },
+                {
+                    title: 'Matching par IA',
+                    description: "Notre IA avancée analyse votre personnalité et vos intérêts pour trouver vos matchs les plus compatibles.",
+                    cta: 'Continuer'
+                },
+                {
+                    title: 'Sûr et Vérifié',
+                    description: "Chaque profil est vérifié. Pas de robots, pas de faux—juste de vraies personnes en quête d'amour.",
+                    cta: "C'est parti"
+                }
+            ],
             steps: {
                 account: 'Compte',
                 photos: 'Photos',
@@ -604,4 +638,9 @@ export const translations = {
     },
 } as const;
 
-export type TranslationKey = typeof translations.en;
+type DeepStringify<T> = {
+    readonly [K in keyof T]: T[K] extends object ? DeepStringify<T[K]> : string;
+};
+
+export type TranslationSchema = DeepStringify<typeof translations.en>;
+export type TranslationKey = TranslationSchema;
