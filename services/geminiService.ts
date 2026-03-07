@@ -71,13 +71,13 @@ export const getCompatibilityScore = async (
     matchInterests: string[],
     userBio: string,
     matchBio: string,
-    language: 'en' | 'fr' = 'en',
+    language: 'en' | 'fr' | 'pcm' = 'en',
 ): Promise<CompatibilityResult> => {
     const langNote = language === 'fr'
         ? 'IMPORTANT: Respond entirely in French.'
         : 'IMPORTANT: Respond entirely in English.';
 
-    const prompt = `You are a dating app AI for Vantage Match in Cameroon. ${langNote}
+    const prompt = `You are a dating app AI for Amoura in Cameroon. ${langNote}
 
 Analyze the compatibility between these two people and respond ONLY in valid JSON (no markdown):
 {
@@ -104,7 +104,7 @@ Match bio: "${matchBio}"`;
 export const getConversationSuggestion = async (
     matchName: string,
     chatHistory: { role: 'user' | 'model'; text: string }[],
-    language: 'en' | 'fr' = 'en',
+    language: 'en' | 'fr' | 'pcm' = 'en',
 ): Promise<string> => {
     const langNote = language === 'fr' ? 'Réponds en français.' : 'Reply in English.';
     const history: GeminiMessage[] = chatHistory.slice(-6).map(m => ({

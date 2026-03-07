@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
-import { UserProfile, Theme } from '../types';
+import { UserProfile, Theme, RELATIONSHIP_GOALS, INTEREST_TAGS } from '../types';
 import { uploadProfilePhoto } from '../services/cloudinaryService';
+import VoiceIntro from './VoiceIntro';
 
 interface EditProfilePanelProps {
     isOpen: boolean;
@@ -12,25 +13,27 @@ interface EditProfilePanelProps {
     theme: Theme;
 }
 
-const INTERESTS_LIST = [
-    'Tech', 'Travel', 'Art', 'Music', 'Fitness', 'Foodie', 'Gaming', 'Nature',
-    'Fashion', 'Movies', 'Reading', 'Dancing', 'Football', 'Photography', 'Business', 'Spirituality'
-];
+const INTERESTS_LIST = INTEREST_TAGS;
 
 const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, currentUser, onSave, theme }) => {
     const [formData, setFormData] = useState({
-        name: currentUser.name,
-        age: currentUser.age.toString(),
-        job: currentUser.job,
-        bio: currentUser.bio,
+        name: currentUser.name || '',
+        age: currentUser.age?.toString() || '',
+        job: currentUser.job || '',
+        university: currentUser.university || '',
+        intent: currentUser.relationship_goal || '',
+        bio: currentUser.bio || '',
     });
-    const [selectedInterests, setSelectedInterests] = useState<string[]>(currentUser.interests);
-    const [imageUrl, setImageUrl] = useState(currentUser.imageUrl);
+    const [selectedInterests, setSelectedInterests] = useState<string[]>(currentUser.interests || []);
+    const [imageUrl, setImageUrl] = useState(currentUser.imageUrl || '');
+    const [photos, setPhotos] = useState<string[]>(currentUser.profile_photos || []);
+    const [voiceUrl, setVoiceUrl] = useState(currentUser.voice_intro || '');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [saved, setSaved] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const multiFileInputRef = useRef<HTMLInputElement>(null);
 
     const accent = theme === 'royal' ? 'text-gold-500' : 'text-rose-500';
     const accentBg = theme === 'royal' ? 'bg-gold-500' : 'bg-rose-500';
@@ -57,6 +60,32 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
         }
     };
 
+    const handleMultiPhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        let validFiles = files.filter(f => f.type.startsWith('image/') && f.size <= 10 * 1024 * 1024);
+        const availableSlots = 6 - photos.length;
+        validFiles = validFiles.slice(0, availableSlots);
+
+        if (!validFiles.length) { setUploadError('Invalid files or no slots left.'); return; }
+
+        setUploading(true);
+        try {
+            const uploadedUrls = await Promise.all(validFiles.map(f => uploadProfilePhoto(f)));
+            setPhotos(prev => [...prev, ...uploadedUrls.map(res => res.url)]);
+        } catch (err) {
+            console.error('Multi photo upload error:', err);
+            setUploadError('Failed to upload some photos.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const removePhoto = (index: number) => {
+        setPhotos(prev => prev.filter((_, i) => i !== index));
+    };
+
     const handleSave = async () => {
         if (!formData.name) return;
         setUploading(true);
@@ -77,9 +106,13 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
             name: formData.name || currentUser.name,
             age: parseInt(formData.age) || currentUser.age,
             job: formData.job || currentUser.job,
+            university: formData.university || currentUser.university,
             bio: formData.bio || currentUser.bio,
             interests: selectedInterests.length > 0 ? selectedInterests : currentUser.interests,
+            relationship_goal: formData.intent ? (formData.intent as any) : currentUser.relationship_goal,
             imageUrl: finalImageUrl,
+            profile_photos: photos,
+            voice_intro: voiceUrl,
         };
         setUploading(false);
         onSave(updated);
@@ -150,6 +183,22 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                                     <FormField label="Age" value={formData.age} onChange={(v) => setFormData(p => ({ ...p, age: v }))} placeholder="25" type="number" theme={theme} />
                                     <FormField label="Job Title" value={formData.job} onChange={(v) => setFormData(p => ({ ...p, job: v }))} placeholder="e.g. Engineer" theme={theme} />
                                 </div>
+                                <FormField label="University / School" value={formData.university} onChange={(v) => setFormData(p => ({ ...p, university: v }))} placeholder="e.g. University of Yaoundé 1" theme={theme} />
+
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Relationship Intent</label>
+                                    <select
+                                        value={formData.intent}
+                                        onChange={(e) => setFormData(p => ({ ...p, intent: e.target.value }))}
+                                        className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white focus:border-white/30 outline-none transition-all appearance-none"
+                                    >
+                                        <option value="">Select Intent</option>
+                                        {RELATIONSHIP_GOALS.map(g => (
+                                            <option key={g.value} value={g.value}>{g.emoji} {g.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
                                 <div>
                                     <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Bio</label>
                                     <textarea
@@ -161,6 +210,51 @@ const EditProfilePanel: React.FC<EditProfilePanelProps> = ({ isOpen, onClose, cu
                                     />
                                     <div className="text-right text-xs text-slate-600 mt-1">{formData.bio.length}/300</div>
                                 </div>
+                            </div>
+
+                            {/* Voice Intro */}
+                            <div>
+                                <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Voice Intro</label>
+                                <VoiceIntro
+                                    audioUrl={voiceUrl || undefined}
+                                    onUpload={async (file) => {
+                                        const res = await uploadProfilePhoto(file); // reuse cloudinary uploader for audio
+                                        setVoiceUrl(res.url);
+                                        return res.url;
+                                    }}
+                                    onRemove={() => setVoiceUrl('')}
+                                />
+                            </div>
+
+                            {/* Additional Photos */}
+                            <div>
+                                <div className="flex justify-between items-center mb-3">
+                                    <label className="text-xs font-bold uppercase text-slate-500 ml-1">Additional Photos (Max 6)</label>
+                                    <span className={`text-xs font-bold ${accent}`}>{photos.length}/6</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {photos.map((photo, i) => (
+                                        <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group">
+                                            <img src={photo} alt="Profile extra" className="w-full h-full object-cover" />
+                                            <button
+                                                onClick={() => removePhoto(i)}
+                                                className="absolute top-1 right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80"
+                                            >
+                                                <X className="w-3.5 h-3.5 text-white" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {photos.length < 6 && (
+                                        <button
+                                            onClick={() => multiFileInputRef.current?.click()}
+                                            className="aspect-square rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center text-slate-500 hover:border-white/40 hover:text-slate-300 transition-colors"
+                                        >
+                                            <Camera className="w-6 h-6 mb-1" />
+                                            <span className="text-[10px] font-bold uppercase">Add Photo</span>
+                                        </button>
+                                    )}
+                                </div>
+                                <input ref={multiFileInputRef} type="file" accept="image/*" multiple onChange={handleMultiPhotoSelect} className="hidden" />
                             </div>
 
                             {/* Interests */}

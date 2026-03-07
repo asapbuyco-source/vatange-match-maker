@@ -1,29 +1,28 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserProfile, CAMEROON_CITIES } from '../types';
+import { UserProfile, CAMEROON_CITIES, RelationshipGoal, RELATIONSHIP_GOALS, INTEREST_TAGS } from '../types';
 import { Camera, ArrowRight, ArrowLeft, CheckCircle, AlertCircle, Loader2, Sparkles, Shield, Heart } from 'lucide-react';
 import { uploadProfilePhoto } from '../services/cloudinaryService';
 import { useLanguage } from '../i18n/LanguageContext';
+import VoiceIntro from './VoiceIntro';
 
 interface OnboardingProps {
   onComplete: (profile: UserProfile) => void;
 }
 
-const INTERESTS_LIST = [
-  'Tech', 'Travel', 'Art', 'Music', 'Fitness', 'Foodie', 'Gaming', 'Nature',
-  'Fashion', 'Movies', 'Reading', 'Dancing', 'Football', 'Photography', 'Business', 'Spirituality'
-];
+const INTERESTS_LIST = INTEREST_TAGS;
 
-const STEPS = ['welcome', 'account', 'photos', 'interests', 'location'] as const;
+const STEPS = ['welcome', 'account', 'photos', 'interests', 'intent', 'location'] as const;
 type Step = typeof STEPS[number];
 
 const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const { t } = useLanguage();
   const [step, setStep] = useState<Step>('welcome');
   const [welcomeIndex, setWelcomeIndex] = useState(0);
-  const [formData, setFormData] = useState({ name: '', age: '', job: '', bio: '', gender: '' as 'male' | 'female' | 'other' | '' });
+  const [formData, setFormData] = useState({ name: '', age: '', job: '', university: '', bio: '', gender: '' as 'male' | 'female' | 'other' | '', intent: '' as RelationshipGoal | '' });
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState('');
+  const [voiceUrl, setVoiceUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [city, setCity] = useState('Douala');
   const [ageError, setAgeError] = useState('');
@@ -114,12 +113,17 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       name: displayName,
       age: parseInt(formData.age),
       job: formData.job || 'Professional',
+      university: formData.university || undefined,
       bio: formData.bio || 'Ready to find a genuine connection.',
       imageUrl: finalImageUrl,
       interests: selectedInterests.length > 0 ? selectedInterests : ['General'],
       location: city,
       gender: formData.gender || 'other',
+      relationship_goal: formData.intent ? formData.intent : undefined,
+      voice_intro: voiceUrl || undefined,
+      profile_photos: finalImageUrl ? [finalImageUrl] : [],
       verified: false,
+      verified_status: false,
     };
     setUploading(false);
     onComplete(newProfile);
@@ -130,6 +134,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     if (step === 'account') return formData.name.trim().length > 0 && formData.age !== '' && formData.gender !== '';
     if (step === 'photos') return true; // photo optional
     if (step === 'interests') return selectedInterests.length >= 2;
+    if (step === 'intent') return formData.intent !== '';
     return true;
   };
 
@@ -203,7 +208,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         </div>
                       )}
                     </div>
-                    <Field label={t.onboarding.account.job} value={formData.job} onChange={v => setFormData(p => ({ ...p, job: v }))} placeholder={t.onboarding.account.job_placeholder} />
+                    <div>
+                      <Field label={t.onboarding.account.job} value={formData.job} onChange={v => setFormData(p => ({ ...p, job: v }))} placeholder={t.onboarding.account.job_placeholder} />
+                    </div>
+                  </div>
+                  <div>
+                    <Field label={t.onboarding.account.university} value={formData.university} onChange={v => setFormData(p => ({ ...p, university: v }))} placeholder={t.onboarding.account.university_placeholder} />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">{t.onboarding.account.gender_label}</label>
@@ -230,6 +240,21 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                       maxLength={300}
                       className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-white focus:border-rose-500/70 outline-none h-24 resize-none placeholder:text-slate-600"
                       placeholder={t.onboarding.account.bio_placeholder}
+                    />
+                  </div>
+
+                  {/* Voice Intro */}
+                  <div className="pt-2">
+                    <label className="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Voice Intro (Optional)</label>
+                    <VoiceIntro
+                      audioUrl={voiceUrl || undefined}
+                      onUpload={async (file) => {
+                        // In reality, upload to Firebase Storage or Cloudinary
+                        const res = await uploadProfilePhoto(file); // reuse cloudinary uploader for audio if supported, or fake it
+                        setVoiceUrl(res.url);
+                        return res.url;
+                      }}
+                      onRemove={() => setVoiceUrl('')}
                     />
                   </div>
                 </div>
@@ -308,7 +333,38 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               </div>
             )}
 
-            {/* STEP 4: Location */}
+            {/* STEP 4.5: Relationship Intent */}
+            {step === 'intent' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-serif font-bold text-white mb-1">{t.onboarding.intent.title}</h2>
+                  <p className="text-slate-400 text-sm">{t.onboarding.intent.subtitle}</p>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  {RELATIONSHIP_GOALS.map(goal => (
+                    <motion.button
+                      key={goal.value}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setFormData(p => ({ ...p, intent: goal.value }))}
+                      className={`p-4 rounded-2xl flex items-center justify-between text-left transition-all border ${formData.intent === goal.value
+                        ? 'bg-rose-600/20 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.15)] text-white'
+                        : 'bg-slate-900 border-white/10 text-slate-400 hover:border-white/20'
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{goal.emoji}</span>
+                        <span className="font-bold">{t.onboarding.intent[goal.value as keyof typeof t.onboarding.intent]}</span>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${formData.intent === goal.value ? 'border-rose-500' : 'border-slate-600'}`}>
+                        {formData.intent === goal.value && <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: Location */}
             {step === 'location' && (
               <div className="space-y-6">
                 <div>

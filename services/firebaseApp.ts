@@ -5,7 +5,7 @@
  * exported from here for use in service modules.
  *
  * Firebase Console: https://console.firebase.google.com
- * Project: vantage-match
+ * Project: amoura
  *
  * Collections structure in Firestore:
  *   /profiles/{userId}      — user profile docs

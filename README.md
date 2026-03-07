@@ -1,20 +1,55 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Amoura 💕
 
-# Run and deploy your AI Studio app
+**Cameroon's premier AI-powered dating app.**
 
-This contains everything you need to run your app locally.
+Amoura helps people across Cameroon form meaningful, authentic connections. Built with Firebase, React, and Gemini AI.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1tHnoKX58rSHzCxVrfP9Egq6MmrTIPGbk
+## Features
 
-## Run Locally
+- 🤖 **AI Compatibility Scoring** — Powered by Gemini AI
+- 🎙️ **Voice Introductions** — Record a 10–15s voice intro on your profile
+- 💬 **Real-time Chat** — Typing indicators, read receipts, emoji support
+- 🔐 **Identity Verification** — Verified profile badges
+- 📍 **Location Matching** — Filter by 5–100 km distance
+- 💳 **Mobile Money Payments** — MTN & Orange via Fapshi
+- 🌍 **Multi-language** — English, French, Pidgin English
+- ❤️ **Relationship Intent** — Dating, Serious, Marriage-minded, Christian dating
+- 🎁 **Referral System** — Invite friends, unlock premium access
 
-**Prerequisites:**  Node.js
+## Tech Stack
 
+- **Frontend**: React + TypeScript + Vite + TailwindCSS + Framer Motion
+- **Backend**: Firebase (Auth, Firestore, Storage)
+- **Payments**: Fapshi (MTN Mobile Money + Orange Money)
+- **AI**: Google Gemini
+- **Images**: Cloudinary (optional)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Getting Started
+
+```bash
+npm install
+cp .env.example .env.local
+# Fill in your Firebase + Fapshi + Gemini credentials
+npm run dev
+```
+
+## Deployment
+
+```bash
+npm run build
+# Deploy /dist to Netlify or Firebase Hosting
+```
+
+## Brand Colors
+
+| Token | Hex |
+|---|---|
+| Primary (Like) | `#FF4B6E` |
+| Secondary | `#FF8FA3` |
+| Super Like | `#FFD166` |
+| Pass | `#CFCFCF` |
+| Messaging | `#6C63FF` |
+
+---
+
+© 2026 Amoura · Cameroon 🇨🇲 · *Find love. Keep it real.*

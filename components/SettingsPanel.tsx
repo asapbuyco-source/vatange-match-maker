@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Settings, MapPin, Users, Sliders, ChevronRight, LogOut, Lock, FileText, Bell } from 'lucide-react';
-import { FilterPreferences, Theme, CAMEROON_CITIES } from '../types';
+import { FilterPreferences, Theme, CAMEROON_CITIES, DISTANCE_OPTIONS, RELATIONSHIP_GOALS } from '../types';
 
 interface SettingsPanelProps {
     isOpen: boolean;
@@ -69,24 +69,41 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, filters,
                         {/* Distance */}
                         <Section title="Maximum Distance" icon={<Sliders className="w-4 h-4" />} theme={theme}>
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center">
+                                <div className="flex justify-between items-center mb-2">
                                     <span className="text-slate-400 text-sm">Up to</span>
                                     <span className="text-white font-bold text-lg">{localFilters.maxDistance} km</span>
                                 </div>
-                                <input
-                                    type="range"
-                                    min={1}
-                                    max={250}
-                                    value={localFilters.maxDistance}
-                                    onChange={(e) => setLocalFilters(prev => ({ ...prev, maxDistance: Number(e.target.value) }))}
-                                    className="w-full h-1.5 appearance-none bg-slate-700 rounded-full cursor-pointer"
-                                    style={{ accentColor: gradientTrack }}
-                                />
-                                <div className="flex justify-between text-xs text-slate-500">
-                                    <span>1 km</span>
-                                    <span>250 km</span>
+                                <div className="flex bg-slate-800 rounded-xl p-1 overflow-x-auto scrollbar-hide">
+                                    {DISTANCE_OPTIONS.map(d => (
+                                        <button
+                                            key={d}
+                                            onClick={() => setLocalFilters(prev => ({ ...prev, maxDistance: d }))}
+                                            className={`flex-1 min-w-[50px] py-1.5 text-sm font-bold rounded-lg transition-all ${localFilters.maxDistance === d
+                                                ? `${accentBg} text-white shadow-md`
+                                                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                                                }`}
+                                        >
+                                            {d}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
+                        </Section>
+
+                        {/* Relationship Intent */}
+                        <Section title="Looking For" icon={<Users className="w-4 h-4" />} theme={theme}>
+                            <select
+                                value={localFilters.relationship_goal || 'all'}
+                                onChange={(e) => setLocalFilters(prev => ({ ...prev, relationship_goal: e.target.value as any }))}
+                                className="w-full bg-slate-800 border border-white/10 rounded-xl p-3.5 text-white focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                            >
+                                <option value="all">Open to all</option>
+                                {RELATIONSHIP_GOALS.map(goal => (
+                                    <option key={goal.value} value={goal.value} className="bg-slate-800">
+                                        {goal.emoji} {goal.label}
+                                    </option>
+                                ))}
+                            </select>
                         </Section>
 
                         {/* Age Range */}
@@ -133,8 +150,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, filters,
                                         key={g}
                                         onClick={() => setLocalFilters(prev => ({ ...prev, genderPreference: g }))}
                                         className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize transition-all border ${localFilters.genderPreference === g
-                                                ? `${accentBg} text-white border-transparent`
-                                                : 'border-white/10 text-slate-400 hover:border-white/20'
+                                            ? `${accentBg} text-white border-transparent`
+                                            : 'border-white/10 text-slate-400 hover:border-white/20'
                                             }`}
                                     >
                                         {g === 'everyone' ? 'Everyone' : g === 'male' ? 'Men' : 'Women'}
@@ -181,7 +198,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, filters,
                         </Section>
 
                         <p className="text-center text-xs text-slate-600 pb-4">
-                            Vantage Match · Cameroon · v2.0.0
+                            Amoura · Cameroon · v2.0.0
                         </p>
                     </div>
                 </motion.div>

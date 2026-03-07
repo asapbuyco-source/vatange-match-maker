@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { UserProfile, AICompatibilityResult } from '../types';
 import { getCompatibilityScore } from '../services/geminiService';
 
-export const useVantageAI = (
+export const useAmouraAI = (
   currentUser: UserProfile | null,
   targetProfile: UserProfile | null,
-  language: 'en' | 'fr' = 'en',
+  language: 'en' | 'fr' | 'pcm' = 'en',
 ) => {
   const [data, setData] = useState<AICompatibilityResult | null>(null);
   const [loading, setLoading] = useState(false);

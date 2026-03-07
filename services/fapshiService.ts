@@ -39,7 +39,7 @@ export interface FapshiPaymentRequest {
     email?: string;        // Payer email (for receipt)
     userId?: string;       // Your internal user ID
     externalId?: string;   // Your order/transaction ID
-    message?: string;      // Reason shown to payer (e.g. "Vantage Match - Account Verification")
+    message?: string;      // Reason shown to payer (e.g. "Amoura - Account Verification")
 }
 
 export interface FapshiPaymentResponse {
@@ -182,7 +182,7 @@ export const processVerificationPayment = async (
         name: userName,
         userId,
         externalId: `VER-${userId ?? Date.now()}-${Date.now()}`,
-        message: 'Vantage Match — Account Verification (100 XAF refundable on first match)',
+        message: 'Amoura — Account Verification (100 XAF refundable on first match)',
     });
 };
 
@@ -201,7 +201,7 @@ export const processSubscriptionPayment = async (
         name: userName,
         userId,
         externalId: `SUB-${tierName.toUpperCase()}-${Date.now()}`,
-        message: `Vantage Match — ${tierName} Subscription`,
+        message: `Amoura — ${tierName} Subscription`,
     });
 };
 
@@ -210,5 +210,5 @@ export const processMoMoPayment = async (
     phone: string,
     amount: number,
 ): Promise<PaymentResult> => {
-    return processFapshiPayment({ phone, amount, message: 'Vantage Match Payment' });
+    return processFapshiPayment({ phone, amount, message: 'Amoura Payment' });
 };

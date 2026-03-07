@@ -1,17 +1,14 @@
-export type Language = 'en' | 'fr';
+export type Language = 'en' | 'fr' | 'pcm';
 
 export const translations = {
     en: {
-        // --- App / General ---
         app: {
-            name: 'Vantage Match',
+            name: 'Amoura',
             tagline: "Cameroon's #1 AI Dating App",
             version: 'v2.0.0',
             country: 'Cameroon 🇨🇲',
             loading: 'Loading...',
         },
-
-        // --- Landing Page ---
         landing: {
             nav: {
                 home: 'Home',
@@ -26,7 +23,7 @@ export const translations = {
                 headline1: 'Find Real Love',
                 headline2: 'In Cameroon',
                 headline3: 'Today.',
-                subtitle: 'From Douala to Yaoundé — Vantage uses advanced AI to connect you with people who truly match your values, interests, and personality.',
+                subtitle: 'From Douala to Yaoundé — Amoura uses advanced AI to connect you with people who truly match your values, interests, and personality.',
                 cta_start: 'Get Started Free',
                 cta_stories: 'See Success Stories',
                 social_proof: 'matches made in Cameroon',
@@ -36,11 +33,11 @@ export const translations = {
             },
             stories: {
                 title: 'Real Stories, Real Love',
-                subtitle: 'From Douala to Bamenda — Vantage is connecting Cameroonians every day.',
+                subtitle: 'From Douala to Bamenda — Amoura is connecting Cameroonians every day.',
                 city_label: 'Douala',
             },
             features: {
-                title: 'Why Choose Vantage?',
+                title: 'Why Choose Amoura?',
                 subtitle: 'Built for Cameroonians. Powered by AI. Focused on real connection.',
                 verified_title: 'Identity Verified',
                 verified_desc: 'Every profile is verified by photo ID. No bots, no fakes — just real people.',
@@ -48,13 +45,15 @@ export const translations = {
                 ai_desc: 'Our AI analyzes deep personality traits, not just surface-level interests.',
                 icebreaker_title: 'Magic Icebreakers',
                 icebreaker_desc: "Never struggle with what to say. AI-crafted openers tailored to your match.",
+                voice_title: 'Voice Introductions',
+                voice_desc: 'Record a 10–15 second voice intro so matches can hear your personality before they even chat.',
             },
             faq: {
                 title: 'Frequently Asked Questions',
-                subtitle: 'Everything you need to know about Vantage Match.',
+                subtitle: 'Everything you need to know about Amoura.',
                 items: [
                     {
-                        q: 'Is Vantage Match available across Cameroon?',
+                        q: 'Is Amoura available across Cameroon?',
                         a: 'Yes! We serve all major cities including Douala, Yaoundé, Bafoussam, Bamenda, Garoua, and more. Our Passport feature lets you connect with people across the whole country.',
                     },
                     {
@@ -92,15 +91,13 @@ export const translations = {
                     success_desc: "Thanks for reaching out. We'll reply within 24 hours.",
                 },
             },
-            footer: 'Elevate your love life.',
+            footer: 'Find love. Keep it real.',
         },
-
-        // --- Onboarding ---
         onboarding: {
             step_of: 'of',
             welcome_slides: [
                 {
-                    title: 'Welcome to Vantage',
+                    title: 'Welcome to Amoura',
                     description: "Cameroon's premier dating experience. We're here to help you find meaningful connections that last.",
                     cta: 'Show Me More'
                 },
@@ -119,6 +116,7 @@ export const translations = {
                 account: 'Account',
                 photos: 'Photos',
                 interests: 'Interests',
+                intent: 'Intent',
                 location: 'Location',
             },
             account: {
@@ -130,13 +128,15 @@ export const translations = {
                 age_placeholder: '24',
                 job: 'Job Title',
                 job_placeholder: 'e.g. Engineer',
+                university: 'University (optional)',
+                university_placeholder: 'e.g. University of Buea',
                 bio: 'Bio',
                 bio_placeholder: 'What makes you unique? (optional)',
                 gender_label: 'I am a...',
                 gender_male: 'Man',
                 gender_female: 'Woman',
                 gender_other: 'Other',
-                age_error: 'You must be at least 18 years old to use Vantage.',
+                age_error: 'You must be at least 18 years old to use Amoura.',
                 age_invalid: 'Please enter a valid age.',
             },
             photos: {
@@ -152,6 +152,14 @@ export const translations = {
                 subtitle: 'Pick at least 2 things you love (max 6).',
                 selected: 'selected',
             },
+            intent: {
+                title: 'What are you looking for?',
+                subtitle: 'Be honest — it helps us find better matches.',
+                dating: 'Dating',
+                serious: 'Serious Relationship',
+                marriage: 'Marriage Minded',
+                christian: 'Christian Dating',
+            },
             location: {
                 title: 'Where are you?',
                 subtitle: "We'll show you matches in your city first.",
@@ -159,8 +167,6 @@ export const translations = {
             cta_continue: 'Continue',
             cta_start: 'Start Matching',
         },
-
-        // --- Discover / Home ---
         discover: {
             empty_title: "You've seen everyone nearby!",
             empty_subtitle: 'Expand your distance in Settings, or get Passport to match across all of Cameroon.',
@@ -173,8 +179,6 @@ export const translations = {
             read_more: 'Read more',
             show_less: 'Show less',
         },
-
-        // --- Game Pad Buttons ---
         buttons: {
             undo: 'Undo',
             nope: 'Nope',
@@ -182,8 +186,6 @@ export const translations = {
             like: 'Like',
             boost: 'Boost',
         },
-
-        // --- Matches Tab ---
         matches: {
             tab_title: 'Matches',
             likes_label: 'Likes',
@@ -193,11 +195,9 @@ export const translations = {
             empty_subtitle: 'Start swiping to find your connection!',
             compatible_label: 'Compatible',
             see_who_likes_title: 'See Who Likes You',
-            see_who_likes_desc: 'Upgrade to Vantage Gold to reveal your secret admirers',
+            see_who_likes_desc: 'Upgrade to Amoura Gold to reveal your secret admirers',
             chat_prompt: 'Say hello with a magic icebreaker ✨',
         },
-
-        // --- Profile Tab ---
         profile: {
             tab_title: 'Profile',
             stat_matches: 'Matches',
@@ -207,14 +207,17 @@ export const translations = {
             btn_get_plus: 'Get Plus',
             btn_premium: 'Premium ✓',
             btn_edit: 'Edit Info',
-            upgrade_title: 'Upgrade to Vantage Gold',
+            upgrade_title: 'Upgrade to Amoura Gold',
             upgrade_desc: 'See who likes you · Unlimited likes · Magic icebreakers',
             upgrade_per_month: 'XAF/month',
             upgrade_view_plans: 'View All Plans',
             my_interests: 'My Interests',
+            referral_title: 'Invite Friends, Get Premium',
+            referral_desc: 'Invite 3 friends and unlock 7 days Amoura+',
+            referral_copied: 'Link copied! 🎉',
+            voice_intro: 'Voice Intro',
+            voice_record: 'Record Introduction',
         },
-
-        // --- Chat ---
         chat: {
             active_now: 'Active now',
             typing: 'typing...',
@@ -228,9 +231,10 @@ export const translations = {
             icebreaker_paid: 'Generate Icebreaker',
             icebreaker_free: 'Unlock Magic Icebreaker',
             safety: 'Safety',
+            voice_message: 'Voice Message',
+            read: 'Read',
+            delivered: 'Delivered',
         },
-
-        // --- Settings ---
         settings: {
             title: 'Discovery Settings',
             location: 'Location',
@@ -241,6 +245,7 @@ export const translations = {
             age_min: 'Minimum age',
             age_max: 'Maximum age',
             show_me: 'Show Me',
+            relationship_intent: 'Relationship Intent',
             gender_everyone: 'Everyone',
             gender_men: 'Men',
             gender_women: 'Women',
@@ -252,24 +257,23 @@ export const translations = {
             logout: 'Log Out',
             save: 'Save',
         },
-
-        // --- Edit Profile ---
         edit_profile: {
             title: 'Edit Profile',
             name: 'Name',
             age: 'Age',
             job: 'Job Title',
+            university: 'University',
             bio: 'Bio',
             bio_placeholder: 'Tell the world what makes you unique...',
             interests_label: 'Interests (Max 6)',
+            relationship_goal: 'Relationship Goal',
             change_photo: 'Change',
             upload_photo: 'Change Photo',
+            voice_intro: 'Voice Intro',
             save: 'Save Changes',
             saved: 'Saved!',
             photo_size_error: 'Photo must be under 5MB',
         },
-
-        // --- Subscription Modal ---
         subscription: {
             upgrade_to: 'Upgrade to',
             monthly: 'Monthly',
@@ -297,10 +301,8 @@ export const translations = {
             per_month: 'XAF/mo',
             per_month_full: '/month',
         },
-
-        // --- Toast Messages ---
         toasts: {
-            welcome: "Welcome to Vantage, {{name}}! 🎉",
+            welcome: "Welcome to Amoura, {{name}}! 🎉",
             matched: "You matched with {{name}}! 💕",
             super_like_sent: "SuperLike sent to {{name}}! ⭐",
             boost_activated: "Boost activated! Your profile is front-page for 30 min ⚡",
@@ -310,11 +312,11 @@ export const translations = {
             no_super_likes: 'No SuperLikes remaining today. Resets tomorrow.',
             see_likes_info: 'See who likes you in the Matches tab ❤️',
             profile_saved: 'Profile updated!',
-            subscription_success: 'Welcome to Vantage {{tier}}! 🎊',
+            subscription_success: 'Welcome to Amoura {{tier}}! 🎊',
             rewind_premium: 'Rewind is a premium feature',
+            user_reported: 'User reported & blocked.',
+            referral_copied: 'Invite link copied to clipboard!',
         },
-
-        // --- Profile Info Drawer ---
         profile_drawer: {
             about: 'About',
             ai_compatibility: 'AI Compatibility',
@@ -322,19 +324,27 @@ export const translations = {
             interests: 'Interests',
             last_active: 'Last seen',
             distance_away: 'km away',
+            relationship_goal: 'Looking for',
+            voice_intro: 'Voice Intro',
+        },
+        relationship_goals: {
+            dating: 'Dating',
+            serious: 'Serious Relationship',
+            marriage: 'Marriage Minded',
+            christian: 'Christian Dating',
+            all: 'Everyone',
         },
     },
 
     // ===== FRENCH =====
     fr: {
         app: {
-            name: 'Vantage Match',
+            name: 'Amoura',
             tagline: "L'appli de rencontres IA #1 au Cameroun",
             version: 'v2.0.0',
             country: 'Cameroun 🇨🇲',
             loading: 'Chargement...',
         },
-
         landing: {
             nav: {
                 home: 'Accueil',
@@ -349,7 +359,7 @@ export const translations = {
                 headline1: 'Trouvez le Vrai Amour',
                 headline2: 'Au Cameroun',
                 headline3: "Aujourd'hui.",
-                subtitle: "De Douala à Yaoundé — Vantage utilise l'IA avancée pour vous connecter avec des personnes qui correspondent vraiment à vos valeurs, intérêts et personnalité.",
+                subtitle: "De Douala à Yaoundé — Amoura utilise l'IA avancée pour vous connecter avec des personnes qui correspondent vraiment à vos valeurs, intérêts et personnalité.",
                 cta_start: 'Commencer Gratuitement',
                 cta_stories: 'Voir les Témoignages',
                 social_proof: 'matchs créés au Cameroun',
@@ -359,11 +369,11 @@ export const translations = {
             },
             stories: {
                 title: 'Vraies Histoires, Vrai Amour',
-                subtitle: 'De Douala à Bamenda — Vantage connecte des Camerounais chaque jour.',
+                subtitle: 'De Douala à Bamenda — Amoura connecte des Camerounais chaque jour.',
                 city_label: 'Douala',
             },
             features: {
-                title: 'Pourquoi Choisir Vantage ?',
+                title: 'Pourquoi Choisir Amoura ?',
                 subtitle: 'Conçu pour les Camerounais. Propulsé par IA. Axé sur la vraie connexion.',
                 verified_title: 'Identité Vérifiée',
                 verified_desc: "Chaque profil est vérifié par pièce d'identité. Pas de bots, pas de faux — de vraies personnes.",
@@ -371,13 +381,15 @@ export const translations = {
                 ai_desc: "Notre IA analyse les traits de personnalité profonds, pas seulement les intérêts superficiels.",
                 icebreaker_title: 'Brise-glaces Magiques',
                 icebreaker_desc: "Ne cherchez plus quoi dire. Des openers créés par IA adaptés à votre match.",
+                voice_title: 'Introductions Vocales',
+                voice_desc: 'Enregistrez une intro vocale de 10–15 secondes pour que vos matchs entendent votre personnalité.',
             },
             faq: {
                 title: 'Questions Fréquentes',
-                subtitle: 'Tout ce que vous devez savoir sur Vantage Match.',
+                subtitle: 'Tout ce que vous devez savoir sur Amoura.',
                 items: [
                     {
-                        q: 'Vantage Match est-il disponible dans tout le Cameroun ?',
+                        q: 'Amoura est-il disponible dans tout le Cameroun ?',
                         a: "Oui ! Nous couvrons toutes les grandes villes : Douala, Yaoundé, Bafoussam, Bamenda, Garoua, etc. Notre fonctionnalité Passport vous permet de vous connecter dans tout le pays.",
                     },
                     {
@@ -415,14 +427,13 @@ export const translations = {
                     success_desc: 'Merci de nous avoir contactés. Nous répondrons sous 24 heures.',
                 },
             },
-            footer: "Élevez votre vie amoureuse.",
+            footer: "Trouvez l'amour. Restez authentique.",
         },
-
         onboarding: {
             step_of: 'sur',
             welcome_slides: [
                 {
-                    title: 'Bienvenue sur Vantage',
+                    title: 'Bienvenue sur Amoura',
                     description: "L'expérience de rencontre par excellence au Cameroun. Nous sommes là pour vous aider à trouver des connexions durables.",
                     cta: 'En savoir plus'
                 },
@@ -441,6 +452,7 @@ export const translations = {
                 account: 'Compte',
                 photos: 'Photos',
                 interests: 'Intérêts',
+                intent: 'Intention',
                 location: 'Lieu',
             },
             account: {
@@ -452,13 +464,15 @@ export const translations = {
                 age_placeholder: '24',
                 job: 'Poste',
                 job_placeholder: 'ex. Ingénieur',
+                university: 'Université (optionnel)',
+                university_placeholder: 'ex. Université de Yaoundé I',
                 bio: 'Bio',
                 bio_placeholder: "Qu'est-ce qui vous rend unique? (optionnel)",
                 gender_label: 'Je suis...',
                 gender_male: 'Un homme',
                 gender_female: 'Une femme',
                 gender_other: 'Autre',
-                age_error: 'Vous devez avoir au moins 18 ans pour utiliser Vantage.',
+                age_error: "Vous devez avoir au moins 18 ans pour utiliser Amoura.",
                 age_invalid: 'Veuillez entrer un âge valide.',
             },
             photos: {
@@ -474,6 +488,14 @@ export const translations = {
                 subtitle: 'Choisissez au moins 2 choses que vous aimez (max 6).',
                 selected: 'sélectionnés',
             },
+            intent: {
+                title: 'Que recherchez-vous ?',
+                subtitle: 'Soyez honnête — cela nous aide à trouver de meilleurs matchs.',
+                dating: 'Rencontres',
+                serious: 'Relation Sérieuse',
+                marriage: 'Mariage',
+                christian: 'Rencontres Chrétiennes',
+            },
             location: {
                 title: 'Où êtes-vous ?',
                 subtitle: "Nous vous montrerons d'abord des matchs dans votre ville.",
@@ -481,7 +503,6 @@ export const translations = {
             cta_continue: 'Continuer',
             cta_start: 'Commencer les Matchs',
         },
-
         discover: {
             empty_title: 'Vous avez vu tout le monde à proximité !',
             empty_subtitle: 'Augmentez votre distance dans Paramètres, ou obtenez Passport pour matcher dans tout le Cameroun.',
@@ -494,28 +515,25 @@ export const translations = {
             read_more: 'Lire plus',
             show_less: 'Réduire',
         },
-
         buttons: {
             undo: 'Annuler',
             nope: 'Nope',
             super_like: 'Super',
-            like: 'J\'aime',
+            like: "J'aime",
             boost: 'Boost',
         },
-
         matches: {
             tab_title: 'Matchs',
-            likes_label: 'J\'aime',
+            likes_label: "J'aime",
             new_matches: 'Nouveaux Matchs',
             messages: 'Messages',
             empty_title: 'Pas encore de matchs',
             empty_subtitle: 'Commencez à swiper pour trouver votre connexion !',
             compatible_label: 'Compatible',
             see_who_likes_title: 'Voyez Qui Vous Aime',
-            see_who_likes_desc: 'Passez à Vantage Gold pour révéler vos admirateurs secrets',
+            see_who_likes_desc: 'Passez à Amoura Gold pour révéler vos admirateurs secrets',
             chat_prompt: 'Dites bonjour avec un brise-glace magique ✨',
         },
-
         profile: {
             tab_title: 'Profil',
             stat_matches: 'Matchs',
@@ -525,13 +543,17 @@ export const translations = {
             btn_get_plus: 'Obtenir Plus',
             btn_premium: 'Premium ✓',
             btn_edit: 'Modifier',
-            upgrade_title: 'Passez à Vantage Gold',
+            upgrade_title: 'Passez à Amoura Gold',
             upgrade_desc: 'Voyez qui vous aime · Likes illimités · Brise-glaces magiques',
             upgrade_per_month: 'XAF/mois',
             upgrade_view_plans: 'Voir Tous les Forfaits',
             my_interests: 'Mes Intérêts',
+            referral_title: 'Invitez des amis, obtenez Premium',
+            referral_desc: 'Invitez 3 amis et débloquez 7 jours Amoura+',
+            referral_copied: 'Lien copié ! 🎉',
+            voice_intro: 'Intro Vocale',
+            voice_record: 'Enregistrer une Introduction',
         },
-
         chat: {
             active_now: 'Actif maintenant',
             typing: 'en train de taper...',
@@ -545,8 +567,10 @@ export const translations = {
             icebreaker_paid: 'Générer un Brise-glace',
             icebreaker_free: 'Débloquer le Brise-glace Magique',
             safety: 'Sécurité',
+            voice_message: 'Message Vocal',
+            read: 'Lu',
+            delivered: 'Livré',
         },
-
         settings: {
             title: 'Paramètres de Découverte',
             location: 'Localisation',
@@ -557,6 +581,7 @@ export const translations = {
             age_min: 'Âge minimum',
             age_max: 'Âge maximum',
             show_me: 'Me Montrer',
+            relationship_intent: 'Intention de Relation',
             gender_everyone: 'Tout le monde',
             gender_men: 'Les Hommes',
             gender_women: 'Les Femmes',
@@ -568,22 +593,23 @@ export const translations = {
             logout: 'Se Déconnecter',
             save: 'Enregistrer',
         },
-
         edit_profile: {
             title: 'Modifier le Profil',
             name: 'Prénom',
             age: 'Âge',
             job: 'Poste',
+            university: 'Université',
             bio: 'Bio',
             bio_placeholder: 'Dites au monde ce qui vous rend unique...',
             interests_label: "Centres d'intérêt (Max 6)",
+            relationship_goal: 'Objectif Relationnel',
             change_photo: 'Changer',
             upload_photo: 'Changer la Photo',
+            voice_intro: 'Intro Vocale',
             save: 'Enregistrer les Modifications',
             saved: 'Enregistré !',
             photo_size_error: 'La photo doit faire moins de 5 Mo',
         },
-
         subscription: {
             upgrade_to: 'Passer à',
             monthly: 'Mensuel',
@@ -611,9 +637,8 @@ export const translations = {
             per_month: 'XAF/mois',
             per_month_full: '/mois',
         },
-
         toasts: {
-            welcome: "Bienvenue sur Vantage, {{name}} ! 🎉",
+            welcome: "Bienvenue sur Amoura, {{name}} ! 🎉",
             matched: "Vous avez matché avec {{name}} ! 💕",
             super_like_sent: "SuperLike envoyé à {{name}} ! ⭐",
             boost_activated: "Boost activé ! Votre profil est en première page pendant 30 min ⚡",
@@ -623,10 +648,11 @@ export const translations = {
             no_super_likes: "Plus de SuperLikes aujourd'hui. Remise à zéro demain.",
             see_likes_info: "Voyez qui vous aime dans l'onglet Matchs ❤️",
             profile_saved: 'Profil mis à jour !',
-            subscription_success: 'Bienvenue dans Vantage {{tier}} ! 🎊',
+            subscription_success: 'Bienvenue dans Amoura {{tier}} ! 🎊',
             rewind_premium: 'Le Retour arrière est une fonctionnalité premium',
+            user_reported: 'Utilisateur signalé et bloqué.',
+            referral_copied: "Lien d'invitation copié !",
         },
-
         profile_drawer: {
             about: 'À propos',
             ai_compatibility: 'Compatibilité IA',
@@ -634,6 +660,351 @@ export const translations = {
             interests: 'Intérêts',
             last_active: 'Vu(e)',
             distance_away: 'km de distance',
+            relationship_goal: 'Recherche',
+            voice_intro: 'Intro Vocale',
+        },
+        relationship_goals: {
+            dating: 'Rencontres',
+            serious: 'Relation Sérieuse',
+            marriage: 'Mariage',
+            christian: 'Rencontres Chrétiennes',
+            all: 'Tout le monde',
+        },
+    },
+
+    // ===== PIDGIN ENGLISH (Cameroon) =====
+    pcm: {
+        app: {
+            name: 'Amoura',
+            tagline: 'Cameroon #1 Dating App wey get AI',
+            version: 'v2.0.0',
+            country: 'Cameroon 🇨🇲',
+            loading: 'E dey load...',
+        },
+        landing: {
+            nav: {
+                home: 'Home',
+                stories: 'Stories',
+                features: 'Features',
+                faq: 'FAQ',
+                contact: 'Contact',
+                launch: 'Open App',
+            },
+            hero: {
+                badge: 'Cameroon #1 AI Dating App',
+                headline1: 'Find True Love',
+                headline2: 'Na Cameroon',
+                headline3: 'Today!',
+                subtitle: 'From Douala reach Yaoundé — Amoura use AI for connect you with person wey fit you well well.',
+                cta_start: 'Start For Free',
+                cta_stories: 'See Success Stories',
+                social_proof: 'matches don happen for Cameroon',
+                compatibility_label: 'How You Fit',
+                story_location: 'Success Story · Douala',
+                story_names: 'Amina & Kevin, 2024',
+            },
+            stories: {
+                title: 'Real Stories, Real Love',
+                subtitle: 'From Douala reach Bamenda — Amoura dey connect Cameroonians every day.',
+                city_label: 'Douala',
+            },
+            features: {
+                title: 'Why You Go Choose Amoura?',
+                subtitle: 'We make am for Cameroonians. AI power am. Real connection be the goal.',
+                verified_title: 'Identity Verified',
+                verified_desc: 'Every person wey join don verify. No fake, no bot — na real people.',
+                ai_title: 'AI Compatibility',
+                ai_desc: 'Our AI go look your personality and interests find who fit you.',
+                icebreaker_title: 'Magic Icebreakers',
+                icebreaker_desc: "You no go know wetin say. AI go write something sweet for you.",
+                voice_title: 'Voice Intro',
+                voice_desc: 'Record small intro for 10–15 seconds make your match hear your voice before una chat.',
+            },
+            faq: {
+                title: 'Questions Wey People Ask',
+                subtitle: 'Everything wey you need know about Amoura.',
+                items: [
+                    {
+                        q: 'Amoura dey work for all Cameroon?',
+                        a: 'Yes! We dey for Douala, Yaoundé, Bafoussam, Bamenda, Garoua and more. Passport feature go let you connect with people for all Cameroon.',
+                    },
+                    {
+                        q: 'How AI compatibility score work?',
+                        a: 'Our AI go look your interests, your bio wey you write, and how you dey behave, then give you score show how you fit your match.',
+                    },
+                    {
+                        q: 'How I go pay subscription?',
+                        a: 'We accept MTN Mobile Money and Orange Money. You go enter your number, then approve the USSD prompt.',
+                    },
+                    {
+                        q: 'My profile safe?',
+                        a: 'E safe. We no go share your data with anybody. You fit report or block any person from the chat screen anytime.',
+                    },
+                ],
+            },
+            contact: {
+                title: 'Contact Us',
+                subtitle: "You get question or success story? Send us message for WhatsApp — we go reply fast!",
+                email_label: 'Email Us',
+                phone_label: 'Call Us',
+                location_label: 'We Dey',
+                location_value: 'Douala, Cameroon 🇨🇲',
+                form: {
+                    first_name: 'Your Name',
+                    last_name: 'Your Surname',
+                    email: 'Email',
+                    message: 'Message',
+                    placeholder_first: 'e.g. Sofia',
+                    placeholder_last: 'e.g. Ndi',
+                    placeholder_email: 'jane@example.com',
+                    placeholder_message: 'How we fit help you?',
+                    submit: 'Send Message',
+                    success_title: 'Message Don Go!',
+                    success_desc: 'Thank you. We go reply within 24 hours.',
+                },
+            },
+            footer: 'Find love. Keep am real.',
+        },
+        onboarding: {
+            step_of: 'of',
+            welcome_slides: [
+                {
+                    title: 'Welcome Amoura',
+                    description: "Na Cameroon best dating experience. We go help you find real connection wey go last.",
+                    cta: 'Show Me More'
+                },
+                {
+                    title: 'AI Dey Match You',
+                    description: 'Our advanced AI go analyze your personality find the person wey fit you best.',
+                    cta: 'Tell Me More'
+                },
+                {
+                    title: 'E Safe & Verified',
+                    description: 'Every profile don verify. No bot, no fake — na real people wey dey look love.',
+                    cta: 'Make We Start'
+                }
+            ],
+            steps: {
+                account: 'Account',
+                photos: 'Photos',
+                interests: 'Interests',
+                intent: 'Intent',
+                location: 'Location',
+            },
+            account: {
+                title: 'Create your profile',
+                subtitle: 'Tell us small about yourself.',
+                name: 'First Name *',
+                name_placeholder: 'e.g. Sofia',
+                age: 'Age *',
+                age_placeholder: '24',
+                job: 'Job Title',
+                job_placeholder: 'e.g. Engineer',
+                university: 'University (optional)',
+                university_placeholder: 'e.g. University of Buea',
+                bio: 'Bio',
+                bio_placeholder: 'Wetin make you special? (optional)',
+                gender_label: 'Na which one you be...',
+                gender_male: 'Man',
+                gender_female: 'Woman',
+                gender_other: 'Other',
+                age_error: 'You must be 18 years and above for use Amoura.',
+                age_invalid: 'Put valid age please.',
+            },
+            photos: {
+                title: 'Add your best photo',
+                subtitle: 'Profiles wey get photo get 5x more matches.',
+                upload_label: 'Upload Photo',
+                upload_sub: 'Tap choose from gallery',
+                change: 'Change Photo',
+                skip: 'Skip for now',
+            },
+            interests: {
+                title: 'Your interests',
+                subtitle: 'Pick at least 2 things wey you like (max 6).',
+                selected: 'selected',
+            },
+            intent: {
+                title: 'Wetin you dey find?',
+                subtitle: 'Be honest — e go help us find better match for you.',
+                dating: 'Casual Dating',
+                serious: 'Serious Relationship',
+                marriage: 'Marriage',
+                christian: 'Christian Dating',
+            },
+            location: {
+                title: 'Wia you dey?',
+                subtitle: "We go show you matches for your city first.",
+            },
+            cta_continue: 'Continue',
+            cta_start: 'Start Matching',
+        },
+        discover: {
+            empty_title: 'You don see everybody for your area!',
+            empty_subtitle: 'Expand your distance for Settings, or get Passport to match for all Cameroon.',
+            empty_cta_review: 'Review Profiles Again',
+            empty_cta_settings: 'Open Settings',
+            ai_match: '% Match',
+            verified: 'Verified',
+            active_now: 'E dey online',
+            km: 'km',
+            read_more: 'Read more',
+            show_less: 'Show less',
+        },
+        buttons: {
+            undo: 'Undo',
+            nope: 'Nope',
+            super_like: 'Super',
+            like: 'Like',
+            boost: 'Boost',
+        },
+        matches: {
+            tab_title: 'Matches',
+            likes_label: 'Likes',
+            new_matches: 'New Matches',
+            messages: 'Messages',
+            empty_title: 'No match yet',
+            empty_subtitle: 'Start swipe find your connection!',
+            compatible_label: 'Compatible',
+            see_who_likes_title: 'See Who Like You',
+            see_who_likes_desc: 'Upgrade to Amoura Gold to see your secret admirers',
+            chat_prompt: 'Say hello with magic icebreaker ✨',
+        },
+        profile: {
+            tab_title: 'Profile',
+            stat_matches: 'Matches',
+            stat_super_likes: 'SuperLikes Left',
+            stat_profile_views: 'Profile Views',
+            btn_settings: 'Settings',
+            btn_get_plus: 'Get Plus',
+            btn_premium: 'Premium ✓',
+            btn_edit: 'Edit Info',
+            upgrade_title: 'Upgrade to Amoura Gold',
+            upgrade_desc: 'See who like you · Unlimited likes · Magic icebreakers',
+            upgrade_per_month: 'XAF/month',
+            upgrade_view_plans: 'See All Plans',
+            my_interests: 'My Interests',
+            referral_title: 'Invite Friends, Get Premium',
+            referral_desc: 'Invite 3 friends unlock 7 days Amoura+',
+            referral_copied: 'Link don copy! 🎉',
+            voice_intro: 'Voice Intro',
+            voice_record: 'Record Introduction',
+        },
+        chat: {
+            active_now: 'E dey online',
+            typing: 'e dey type...',
+            matched_with: 'You don match with',
+            placeholder: 'Type your message...',
+            report: 'Report',
+            unmatch: 'Unmatch',
+            report_confirm: 'You wan report this person?',
+            report_action: 'Report & Block',
+            cancel: 'Cancel',
+            icebreaker_paid: 'Generate Icebreaker',
+            icebreaker_free: 'Unlock Magic Icebreaker',
+            safety: 'Safety',
+            voice_message: 'Voice Message',
+            read: 'Read',
+            delivered: 'Delivered',
+        },
+        settings: {
+            title: 'Discovery Settings',
+            location: 'Location',
+            distance: 'Maximum Distance',
+            distance_up_to: 'Up to',
+            distance_km: 'km',
+            age_range: 'Age Range',
+            age_min: 'Minimum age',
+            age_max: 'Maximum age',
+            show_me: 'Show Me',
+            relationship_intent: 'Relationship Intent',
+            gender_everyone: 'Everyone',
+            gender_men: 'Men',
+            gender_women: 'Women',
+            notifications: 'Notifications',
+            notifications_label: 'New matches & messages',
+            account: 'Account',
+            privacy: 'Privacy Policy',
+            terms: 'Terms of Service',
+            logout: 'Log Out',
+            save: 'Save',
+        },
+        edit_profile: {
+            title: 'Edit Profile',
+            name: 'Name',
+            age: 'Age',
+            job: 'Job Title',
+            university: 'University',
+            bio: 'Bio',
+            bio_placeholder: 'Tell people wetin make you special...',
+            interests_label: 'Interests (Max 6)',
+            relationship_goal: 'Wetin You Find',
+            change_photo: 'Change',
+            upload_photo: 'Change Photo',
+            voice_intro: 'Voice Intro',
+            save: 'Save Changes',
+            saved: 'Saved!',
+            photo_size_error: 'Photo must be under 5MB',
+        },
+        subscription: {
+            upgrade_to: 'Upgrade to',
+            monthly: 'Monthly',
+            annual: 'Annual (Save 35%)',
+            most_popular: 'MOST POPULAR',
+            current: 'CURRENT',
+            billed_annually: 'billed annually',
+            continue: 'Continue',
+            no_hidden: 'Cancel anytime · No hidden fees',
+            back: '← Back to plans',
+            billing_monthly: 'Monthly billing',
+            billing_annual: 'Annual billing',
+            secure_payment: 'Secure Mobile Money Payment',
+            secure_desc_prefix: "You go receive prompt approve",
+            secure_desc_suffix: 'via MTN MoMo or Orange Money.',
+            phone_label: 'Mobile Money Number',
+            phone_placeholder: '6XXXXXXXX',
+            phone_error: 'Enter valid 9-digit Cameroon number wey start with 6 or 7',
+            pay: 'Pay',
+            awaiting: 'Dey wait PIN Approval...',
+            retry: 'Try Payment Again',
+            terms: 'If you subscribe you agree to our Terms',
+            success_title: 'Welcome to',
+            success_desc: 'Your premium features don unlock. Enjoy!',
+            per_month: 'XAF/mo',
+            per_month_full: '/month',
+        },
+        toasts: {
+            welcome: "Welcome Amoura, {{name}}! 🎉",
+            matched: "You don match with {{name}}! 💕",
+            super_like_sent: "SuperLike don go to {{name}}! ⭐",
+            boost_activated: "Boost on! Your profile dey front for 30 min ⚡",
+            undo_done: 'Last swipe don undo ↩️',
+            undo_empty: 'Nothing to undo',
+            undo_premium: 'Rewind na premium feature',
+            no_super_likes: 'No SuperLike remain today. E go reset tomorrow.',
+            see_likes_info: 'See who like you for Matches tab ❤️',
+            profile_saved: 'Profile don update!',
+            subscription_success: 'Welcome to Amoura {{tier}}! 🎊',
+            rewind_premium: 'Rewind na premium feature',
+            user_reported: 'Person don get reported and blocked.',
+            referral_copied: 'Invite link don copy!',
+        },
+        profile_drawer: {
+            about: 'About',
+            ai_compatibility: 'AI Compatibility',
+            ai_insight: 'AI Insight',
+            interests: 'Interests',
+            last_active: 'Last seen',
+            distance_away: 'km away',
+            relationship_goal: 'E dey find',
+            voice_intro: 'Voice Intro',
+        },
+        relationship_goals: {
+            dating: 'Dating',
+            serious: 'Serious Relationship',
+            marriage: 'Marriage',
+            christian: 'Christian Dating',
+            all: 'Everyone',
         },
     },
 } as const;

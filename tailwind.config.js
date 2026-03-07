@@ -13,6 +13,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        amoura: {
+          primary: '#FF4B6E',
+          secondary: '#FF8FA3',
+          pass: '#CFCFCF',
+          superLike: '#FFD166',
+          messaging: '#6C63FF',
+        },
         gold: {
           300: '#fde68a',
           400: '#facc15',

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { UserProfile, AICompatibilityResult, Theme } from '../types';
-import { Sparkles, Briefcase, Info, MapPin, CheckCircle } from 'lucide-react';
+import { UserProfile, AICompatibilityResult, Theme, RELATIONSHIP_GOALS } from '../types';
+import { Sparkles, Briefcase, Info, MapPin, CheckCircle, GraduationCap } from 'lucide-react';
 
 interface MatchCardProps {
   profile: UserProfile;
@@ -70,15 +70,15 @@ const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwi
       {/* Swipe Stamps */}
       <motion.div
         style={{ opacity: likeOpacity, scale: likeScale }}
-        className="absolute top-14 left-6 border-[3px] border-[#4CD964] rounded-xl px-4 py-1 -rotate-12 z-30 shadow-2xl"
+        className="absolute top-14 left-6 border-[3px] border-[#FF4B6E] rounded-xl px-4 py-1 -rotate-12 z-30 shadow-2xl"
       >
-        <span className="text-[#4CD964] font-black text-4xl uppercase tracking-widest drop-shadow">LIKE</span>
+        <span className="text-[#FF4B6E] font-black text-4xl uppercase tracking-widest drop-shadow">LIKE</span>
       </motion.div>
       <motion.div
         style={{ opacity: nopeOpacity, scale: nopeScale }}
-        className="absolute top-14 right-6 border-[3px] border-[#FF3B30] rounded-xl px-4 py-1 rotate-12 z-30 shadow-2xl"
+        className="absolute top-14 right-6 border-[3px] border-[#CFCFCF] rounded-xl px-4 py-1 rotate-12 z-30 shadow-2xl"
       >
-        <span className="text-[#FF3B30] font-black text-4xl uppercase tracking-widest drop-shadow">NOPE</span>
+        <span className="text-[#CFCFCF] font-black text-4xl uppercase tracking-widest drop-shadow">PASS</span>
       </motion.div>
 
       {/* AI Skeleton Loader */}
@@ -132,11 +132,17 @@ const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwi
         </div>
 
         {/* Job & Location */}
-        <div className="flex items-center flex-wrap gap-3 text-sm font-medium opacity-90 mb-3 text-slate-100">
+        <div className="flex items-center flex-wrap gap-3 text-sm font-medium opacity-90 mb-2 text-slate-100">
           <div className="flex items-center gap-1.5">
             <Briefcase className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{profile.job}</span>
           </div>
+          {profile.university && (
+            <div className="flex items-center gap-1.5">
+              <GraduationCap className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>{profile.university}</span>
+            </div>
+          )}
           {profile.location && (
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
@@ -145,6 +151,13 @@ const MatchCard: React.FC<MatchCardProps> = ({ profile, aiData, aiLoading, onSwi
             </div>
           )}
         </div>
+
+        {profile.relationship_goal && (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-white/20 bg-black/40 backdrop-blur-sm text-[10px] font-bold text-white mb-2 max-w-fit">
+            <span>{RELATIONSHIP_GOALS.find(g => g.value === profile.relationship_goal)?.emoji}</span>
+            <span>{RELATIONSHIP_GOALS.find(g => g.value === profile.relationship_goal)?.label}</span>
+          </div>
+        )}
 
         {/* Interests */}
         <div className="flex flex-wrap gap-2 mb-2.5">

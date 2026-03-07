@@ -27,7 +27,7 @@ const AccountVerification: React.FC<AccountVerificationProps> = ({
     const [transId, setTransId] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const accent = theme === 'royal' ? '#eab308' : '#FD297B';
+    const accent = theme === 'royal' ? '#eab308' : '#FF4B6E';
     const accentBg = theme === 'royal' ? 'bg-gold-500' : 'bg-rose-500';
     const accentText = theme === 'royal' ? 'text-gold-400' : 'text-rose-400';
     const accentBorder = theme === 'royal' ? 'border-gold-500/40' : 'border-rose-500/40';

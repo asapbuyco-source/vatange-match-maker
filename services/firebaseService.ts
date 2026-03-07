@@ -75,6 +75,13 @@ export interface ProfileRow {
     subscription_tier: string;
     last_active: string;
     created_at: string;
+    // New Amoura fields
+    university?: string;
+    profession?: string;
+    relationship_goal?: string;
+    profile_photos?: string[];
+    voice_intro?: string;
+    verified_status?: boolean;
 }
 
 export interface MatchRow {
@@ -323,4 +330,63 @@ export const subscribeToMessages = (
     });
 
     return unsub;
+};
+
+// ── Moderation & Safety ────────────────────────────────────────────────────────
+
+/** Report a user for inappropriate behavior */
+export const reportUser = async (
+    reporterId: string,
+    reportedId: string,
+    reason: string = 'Inappropriate behavior'
+): Promise<boolean> => {
+    if (!isFirebaseConfigured()) return false;
+    try {
+        const reportRef = collection(db, 'reports');
+        await addDoc(reportRef, {
+            reporter_id: reporterId,
+            reported_id: reportedId,
+            reason,
+            created_at: serverTimestamp()
+        });
+        return true;
+    } catch (err) {
+        console.error('[Firebase] reportUser failed:', err);
+        return false;
+    }
+};
+
+/** Block a user so they cannot interact anymore */
+export const blockUser = async (
+    blockerId: string,
+    blockedId: string
+): Promise<boolean> => {
+    if (!isFirebaseConfigured()) return false;
+    try {
+        // Deterministic ID for the block relationship
+        const docId = `${blockerId}_blocks_${blockedId}`;
+        const ref = doc(db, 'blocks', docId);
+        await setDoc(ref, {
+            blocker_id: blockerId,
+            blocked_id: blockedId,
+            created_at: serverTimestamp()
+        });
+        return true;
+    } catch (err) {
+        console.error('[Firebase] blockUser failed:', err);
+        return false;
+    }
+};
+
+/** Get list of blocked user IDs for a given user */
+export const getBlockedUsers = async (userId: string): Promise<string[]> => {
+    if (!isFirebaseConfigured()) return [];
+    try {
+        const q = query(collection(db, 'blocks'), where('blocker_id', '==', userId));
+        const snap = await getDocs(q);
+        return snap.docs.map(d => d.data().blocked_id as string);
+    } catch (err) {
+        console.error('[Firebase] getBlockedUsers failed:', err);
+        return [];
+    }
 };

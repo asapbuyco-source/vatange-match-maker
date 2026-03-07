@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { UserProfile, Theme, FilterPreferences, SubscriptionTier, ToastMessage, SuperLikeState } from './types';
-import { useVantageAI } from './hooks/useVantageAI';
+import { UserProfile, Theme, FilterPreferences, SubscriptionTier, ToastMessage, SuperLikeState, ReferralState } from './types';
+import { useAmouraAI } from './hooks/useAmouraAI';
 import { useLanguage } from './i18n/LanguageContext';
 import { DEMO_PROFILE_IMAGES } from './constants/africanImages';
 import { upsertProfile, createMatch } from './services/firebaseService';
@@ -17,6 +17,8 @@ import SettingsPanel from './components/SettingsPanel';
 import EditProfilePanel from './components/EditProfilePanel';
 import ProfileInfoDrawer from './components/ProfileInfoDrawer';
 import AccountVerification from './components/AccountVerification';
+import AmouraLogo from './components/AmouraLogo';
+import ReferralSystem from './components/ReferralSystem';
 import {
   Shield, RotateCcw, X, Star, Heart, Zap, Sparkles,
   Settings, Edit3, Search, CheckCircle, Lock, Crown, Globe
@@ -145,10 +147,10 @@ const INITIAL_SUPER_LIKES: SuperLikeState = {
 
 const App: React.FC = () => {
   // --- i18n ---
-  const { t, language, setLanguage, interpolate } = useLanguage();
+  const { t, language, setLanguage, toggleLanguage, interpolate } = useLanguage();
 
   // --- Theme (persisted) ---
-  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('vantage_theme') as Theme) || 'rose');
+  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('amoura_theme') as Theme) || 'rose');
 
   // --- Navigation ---
   const [view, setView] = useState<'landing' | 'onboarding' | 'app'>('landing');
@@ -165,6 +167,15 @@ const App: React.FC = () => {
   const [exitDirection, setExitDirection] = useState<'left' | 'right' | null>(null);
   const [undoStack, setUndoStack] = useState<number[]>([]);
   const [superLikes, setSuperLikes] = useState<SuperLikeState>(INITIAL_SUPER_LIKES);
+
+  // --- Referral & Boost ---
+  const [referralState, setReferralState] = useState<ReferralState>({
+    referralCode: 'AMO-9X2P',
+    invitesSent: 5,
+    invitesAccepted: 1,
+    premiumDaysEarned: 0,
+  });
+  const [isBoosted, setIsBoosted] = useState(false);
 
   // --- Subscription ---
   const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier>('free');
@@ -205,7 +216,7 @@ const App: React.FC = () => {
     id: 'temp', name: 'User', age: 0, job: '', bio: '', imageUrl: '', interests: []
   }), []);
 
-  const { data: aiData, loading: aiLoading } = useVantageAI(currentUser ?? fallbackUser, currentProfile, language);
+  const { data: aiData, loading: aiLoading } = useAmouraAI(currentUser ?? fallbackUser, currentProfile, language);
 
   // Theme helpers
   const accentColor = theme === 'royal' ? 'text-gold-500' : 'text-rose-500';
@@ -215,14 +226,14 @@ const App: React.FC = () => {
   const handleToggleTheme = useCallback(() => {
     setTheme(prev => {
       const next = prev === 'royal' ? 'rose' : 'royal';
-      localStorage.setItem('vantage_theme', next);
+      localStorage.setItem('amoura_theme', next);
       return next;
     });
   }, []);
 
   const handleToggleLanguage = useCallback(() => {
-    setLanguage(language === 'en' ? 'fr' : 'en');
-  }, [language, setLanguage]);
+    toggleLanguage();
+  }, [toggleLanguage]);
 
   const handleOnboardingComplete = useCallback(async (profile: UserProfile) => {
     setCurrentUser(profile);
@@ -317,8 +328,11 @@ const App: React.FC = () => {
 
   const handleBoost = useCallback(() => {
     if (!isPaid) { setShowSubscription(true); return; }
+    if (isBoosted) { addToast('Your profile is already boosted!', 'info'); return; }
+    setIsBoosted(true);
     addToast(t.toasts.boost_activated, 'success');
-  }, [isPaid, addToast, t]);
+    setTimeout(() => { setIsBoosted(false); addToast('Boost ended', 'info'); }, 30 * 60 * 1000);
+  }, [isPaid, isBoosted, addToast, t]);
 
   const handleSubscriptionSuccess = useCallback((tier: SubscriptionTier) => {
     setSubscriptionTier(tier);
@@ -402,9 +416,7 @@ const App: React.FC = () => {
             {/* Center */}
             {activeTab === 'discover' ? (
               <div className="flex items-center gap-1 pointer-events-auto">
-                <span className={`font-serif font-bold text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r ${theme === 'royal' ? 'from-gold-300 to-yellow-600' : 'from-rose-400 to-rose-600'}`}>
-                  Vantage
-                </span>
+                <AmouraLogo size={24} showText={true} textClassName={`text-2xl ${theme === 'royal' ? 'text-gold-400' : 'text-rose-500'}`} />
                 {isPaid && (
                   <span className={`flex items-center gap-0.5 text-[10px] font-black uppercase ${tierColor[subscriptionTier]}`}>
                     {tierIcon[subscriptionTier]}
@@ -668,7 +680,7 @@ const App: React.FC = () => {
                               'border-rose-500/40 bg-rose-500/15 text-rose-400'
                             }`}>
                             {tierIcon[subscriptionTier]}
-                            Vantage {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
+                            Amoura {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)}
                           </div>
                         </div>
                       )}
@@ -747,6 +759,9 @@ const App: React.FC = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* Referral System */}
+                      <ReferralSystem referralState={referralState} />
                     </div>
                   </motion.div>
                 )}

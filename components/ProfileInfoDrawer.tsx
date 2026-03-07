@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Briefcase, MapPin, Sparkles, Heart, Shield, CheckCircle } from 'lucide-react';
-import { UserProfile, AICompatibilityResult, Theme } from '../types';
+import { X, Briefcase, MapPin, Sparkles, Heart, Shield, CheckCircle, GraduationCap, Play } from 'lucide-react';
+import { UserProfile, AICompatibilityResult, Theme, RELATIONSHIP_GOALS } from '../types';
 
 interface ProfileInfoDrawerProps {
     profile: UserProfile;
@@ -73,6 +73,13 @@ const ProfileInfoDrawer: React.FC<ProfileInfoDrawerProps> = ({
                                     <div className="flex items-center gap-2 mt-1 text-slate-300 text-sm">
                                         <Briefcase className="w-3.5 h-3.5" />
                                         <span>{profile.job}</span>
+                                        {profile.university && (
+                                            <>
+                                                <span className="text-slate-600">·</span>
+                                                <GraduationCap className="w-3.5 h-3.5" />
+                                                <span>{profile.university}</span>
+                                            </>
+                                        )}
                                         {profile.location && (
                                             <>
                                                 <span className="text-slate-600">·</span>
@@ -81,6 +88,12 @@ const ProfileInfoDrawer: React.FC<ProfileInfoDrawerProps> = ({
                                             </>
                                         )}
                                     </div>
+                                    {profile.relationship_goal && (
+                                        <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/20 bg-black/40 backdrop-blur-sm text-xs font-bold text-white">
+                                            <span>{RELATIONSHIP_GOALS.find(g => g.value === profile.relationship_goal)?.emoji}</span>
+                                            <span>{RELATIONSHIP_GOALS.find(g => g.value === profile.relationship_goal)?.label}</span>
+                                        </div>
+                                    )}
                                     {profile.distance !== undefined && (
                                         <p className="text-xs text-slate-400 mt-0.5">{profile.distance} km away</p>
                                     )}
@@ -137,6 +150,14 @@ const ProfileInfoDrawer: React.FC<ProfileInfoDrawerProps> = ({
                                                 </span>
                                             ))}
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* Voice Intro Playback */}
+                                {profile.voice_intro && (
+                                    <div className="p-4 bg-slate-800/40 rounded-xl border border-white/5">
+                                        <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">Voice Intro</h3>
+                                        <audio src={profile.voice_intro} controls className="w-full h-10 outline-none" />
                                     </div>
                                 )}
 

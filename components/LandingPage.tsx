@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Heart, Shield, ArrowRight, MessageCircle, Mail, Phone, MapPin, ChevronDown, Palette, CheckCircle, MessageSquare, Send } from 'lucide-react';
 import { Theme } from '../types';
+import AmouraLogo from './AmouraLogo';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -12,7 +13,7 @@ interface LandingPageProps {
 const WHATSAPP_NUMBER = '237657960690';
 
 const FAQ_ITEMS = [
-  { q: 'Is Vantage Match available across Cameroon?', a: 'Yes! We serve all major cities including Douala, Yaoundé, Bafoussam, Bamenda, Garoua, and more. Our Passport feature lets you connect with people across the whole country.' },
+  { q: 'Is Amoura available across Cameroon?', a: 'Yes! We serve all major cities including Douala, Yaoundé, Bafoussam, Bamenda, Garoua, and more. Our Passport feature lets you connect with people across the whole country.' },
   { q: 'How does the AI compatibility scoring work?', a: 'Our AI analyzes shared interests, personality traits from your bio, and behavioral patterns to generate a compatibility score and tailored icebreaker for every potential match.' },
   { q: 'How do I pay for a subscription?', a: 'We support MTN Mobile Money and Orange Money — the most popular payment methods in Cameroon. Simply enter your number and approve the USSD prompt.' },
   { q: 'Is my profile safe and private?', a: 'Absolutely. Your data is encrypted and never shared with third parties. You can report or block any user at any time from the chat screen.' },
@@ -52,10 +53,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
       <nav className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-md border-b border-white/8 ${isRoyal ? 'bg-slate-950/80' : 'bg-rose-950/80'}`}>
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo('home')}>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accentBg}`}>
-              <span className="font-serif font-bold text-black text-xl">V</span>
-            </div>
-            <span className="font-serif font-bold text-xl tracking-tight">Vantage</span>
+            <AmouraLogo size={32} showText={true} textClassName="text-white text-xl" />
           </div>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
@@ -97,7 +95,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
           </h1>
 
           <p className="text-lg text-slate-300 max-w-lg mb-8 leading-relaxed font-light">
-            From Douala to Yaoundé — Vantage uses advanced AI to connect you with people who truly match your values, interests, and personality.
+            From Douala to Yaoundé — Amoura uses advanced AI to connect you with people who truly match your values, interests, and personality.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -155,12 +153,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">Real Stories, Real Love</h2>
-            <p className="text-slate-400 max-w-xl mx-auto">From Douala to Bamenda — Vantage is connecting Cameroonians every day.</p>
+            <p className="text-slate-400 max-w-xl mx-auto">From Douala to Bamenda — Amoura is connecting Cameroonians every day.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <StoryCard image="https://images.unsplash.com/photo-1621252179027-94459d27d3ee?q=80&w=800&fit=crop" names="Elena & Marcus" city="Douala" quote="We matched on Vantage and knew instantly. The compatibility score wasn't lying!" theme={currentTheme} />
+            <StoryCard image="https://images.unsplash.com/photo-1621252179027-94459d27d3ee?q=80&w=800&fit=crop" names="Elena & Marcus" city="Douala" quote="We matched on Amoura and knew instantly. The compatibility score wasn't lying!" theme={currentTheme} />
             <StoryCard image="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=800&fit=crop" names="David & Christine" city="Yaoundé" quote="Finally, an app that focuses on what actually matters. 2 years strong!" theme={currentTheme} />
-            <StoryCard image="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=800&fit=crop" names="Priya & Raj" city="Bafoussam" quote="From a magic icebreaker to our wedding day. Thank you Vantage!" theme={currentTheme} />
+            <StoryCard image="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=800&fit=crop" names="Priya & Raj" city="Bafoussam" quote="From a magic icebreaker to our wedding day. Thank you Amoura!" theme={currentTheme} />
           </div>
         </div>
       </section>
@@ -169,7 +167,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
       <section id="features" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">Why Choose Vantage?</h2>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">Why Choose Amoura?</h2>
             <p className="text-slate-400 max-w-xl mx-auto">Built for Cameroonians. Powered by AI. Focused on real connection.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -185,7 +183,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="font-serif text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-            <p className="text-slate-400">Everything you need to know about Vantage Match.</p>
+            <p className="text-slate-400">Everything you need to know about Amoura.</p>
           </div>
           <div className="space-y-3">
             {FAQ_ITEMS.map((item, i) => (
@@ -218,7 +216,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
             <div className="space-y-5">
               {[
                 { icon: <Phone className="w-5 h-5" />, label: 'WhatsApp', value: '+237 657 960 690' },
-                { icon: <Mail className="w-5 h-5" />, label: 'Email Us', value: 'hello@vantage.cm' },
+                { icon: <Mail className="w-5 h-5" />, label: 'Email Us', value: 'hello@amoura.cm' },
                 { icon: <MapPin className="w-5 h-5" />, label: 'Based In', value: 'Douala, Cameroon 🇨🇲' },
               ].map(item => (
                 <div key={item.label} className="flex items-center gap-4">
@@ -275,7 +273,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
                       onChange={e => setContactData(p => ({ ...p, message: e.target.value }))}
                       required
                       rows={5}
-                      placeholder="Hi Vantage! I have a question about..."
+                      placeholder="Hi Amoura! I have a question about..."
                       className="w-full bg-white/5 border border-white/10 rounded-xl p-3 resize-none focus:outline-none focus:border-white/30 transition-colors text-white placeholder:text-slate-600"
                     />
                   </div>
@@ -298,7 +296,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, currentTheme, onTogg
 
       <footer className="py-8 text-center border-t border-white/5 bg-black/40 backdrop-blur-sm">
         <p className="text-slate-500 text-sm font-serif italic">
-          © {new Date().getFullYear()} Vantage Match · Cameroon 🇨🇲 · Elevate your love life.
+          © {new Date().getFullYear()} Amoura · Cameroon 🇨🇲 · Elevate your love life.
         </p>
       </footer>
     </div>

@@ -11,8 +11,8 @@ interface BottomNavProps {
 }
 
 const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, badgeCount = 0, theme }) => {
-  const activeColor = theme === 'royal' ? 'text-gold-500' : 'text-rose-500';
-  const activeBg = theme === 'royal' ? 'bg-gold-500/10' : 'bg-rose-500/10';
+  const activeColor = theme === 'royal' ? 'text-gold-500' : 'text-[#FF4B6E]';
+  const activeBg = theme === 'royal' ? 'bg-gold-500/10' : 'bg-[#FF4B6E]/10';
 
   const tabs: { id: 'discover' | 'matches' | 'profile'; icon: React.ReactNode; label: string }[] = [
     { id: 'discover', icon: <Compass className="w-6 h-6" />, label: 'Discover' },
@@ -52,7 +52,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, badgeCoun
             {isActive && (
               <motion.div
                 layoutId="nav-indicator"
-                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full ${theme === 'royal' ? 'bg-gold-500' : 'bg-rose-500'}`}
+                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full ${theme === 'royal' ? 'bg-gold-500' : 'bg-[#FF4B6E]'}`}
               />
             )}
           </button>

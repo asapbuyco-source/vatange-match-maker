@@ -1,5 +1,5 @@
 /**
- * African imagery constants for Vantage Match
+ * African imagery constants for Amoura
  *
  * Using high-quality, culturally rich images from Unsplash
  * featuring African couples, Cameroon cityscapes, and lifestyle.

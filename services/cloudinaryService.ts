@@ -7,7 +7,7 @@
  * Cloudinary setup:
  *   1. Create free account at https://cloudinary.com
  *   2. Settings → Upload → Upload Presets → Create unsigned preset
- *      named "vantage_profile_photos"
+ *      named "amoura_profile_photos"
  *   3. Enable content moderation in the preset
  *
  * Firebase Storage setup (automatic — uses firebaseApp.ts config):
@@ -19,7 +19,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, isFirebaseConfigured } from './firebaseApp';
 
 const CLOUDINARY_CLOUD = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const CLOUDINARY_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'vantage_profile_photos';
+const CLOUDINARY_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'amoura_profile_photos';
 
 export interface UploadResult {
     url: string;
@@ -34,7 +34,7 @@ const uploadToCloudinary = async (file: File): Promise<UploadResult> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_PRESET);
-    formData.append('folder', 'vantage/profiles');
+    formData.append('folder', 'amoura/profiles');
     formData.append('transformation', 'c_fill,g_face,w_800,h_800,q_auto,f_auto');
     formData.append('moderation', 'aws_rek'); // AI content moderation
 
@@ -79,7 +79,7 @@ const uploadToFirebase = async (file: File): Promise<UploadResult> => {
 
     await uploadBytes(storageRef, file, {
         contentType: file.type,
-        customMetadata: { source: 'vantage-match', uploadedAt: new Date().toISOString() },
+        customMetadata: { source: 'amoura', uploadedAt: new Date().toISOString() },
     });
 
     const url = await getDownloadURL(storageRef);

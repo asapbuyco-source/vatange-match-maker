@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserProfile, AICompatibilityResult, ChatMessage, Theme } from '../types';
-import { Send, Lock, Sparkles, ChevronLeft, MoreVertical, Shield, Flag, UserX } from 'lucide-react';
-import { sendMessage as fbSendMessage, subscribeToMessages, MessageRow } from '../services/firebaseService';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { Send, Lock, Sparkles, ChevronLeft, MoreVertical, Shield, Flag, UserX, Smile, Mic, Check, CheckCheck } from 'lucide-react';
+import { sendMessage as fbSendMessage, subscribeToMessages, MessageRow, reportUser, blockUser } from '../services/firebaseService';
+import { serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../services/firebaseApp';
 import { auth } from '../services/firebaseApp';
 
@@ -147,13 +147,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const handleReport = async () => {
     if (firebaseReady && auth.currentUser) {
       try {
-        await addDoc(collection(db, 'reports'), {
-          reporterId: currentUserId,
-          reportedId: matchProfile.id,
-          matchId,
-          reason: 'inappropriate_behavior',
-          timestamp: serverTimestamp(),
-        });
+        await reportUser(currentUserId, matchProfile.id, 'Inappropriate behavior');
+        await blockUser(currentUserId, matchProfile.id);
       } catch { /* non-blocking */ }
     }
     setReported(true);
@@ -262,9 +257,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               >
                 {msg.text}
               </div>
-              <p className={`text-[10px] text-slate-600 ${msg.sender === 'user' ? 'text-right' : 'text-left'} px-1`}>
-                {formatTime(msg.timestamp)}
-              </p>
+              <div className={`flex items-center gap-1 mt-0.5 px-1 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <span className="text-[10px] text-slate-500">{formatTime(msg.timestamp)}</span>
+                {msg.sender === 'user' && (
+                  msg.isRead ? <CheckCheck className="w-3 h-3 text-blue-400" /> : <Check className="w-3 h-3 text-slate-500" />
+                )}
+              </div>
             </div>
           </motion.div>
         ))}
@@ -295,7 +293,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             <p className="text-sm font-bold text-white mb-1">You've used 5 free messages</p>
             <p className="text-xs text-slate-400 mb-3">Upgrade to keep the conversation going unlimited.</p>
             <button onClick={onUnlockClick} className="px-6 py-2 rounded-full bg-gradient-to-r from-rose-500 to-orange-500 text-white font-bold text-sm">
-              Get Vantage+
+              Get Amoura+
             </button>
           </motion.div>
         )}
@@ -318,7 +316,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
       {/* Input Bar */}
       <div className="p-3 bg-slate-900 border-t border-white/5 flex gap-2 items-end pb-7">
-        <div className={`flex-1 bg-slate-800 rounded-[24px] flex items-center border transition-colors ${hitFreeLimit ? 'opacity-50 border-transparent' : 'border-transparent focus-within:border-rose-500/50'}`}>
+        <div className={`flex-1 bg-slate-800 rounded-[24px] flex items-center border transition-colors ${hitFreeLimit ? 'opacity-50 border-transparent' : 'border-transparent focus-within:border-rose-500/50'} pl-2`}>
+          <button className="p-2 text-slate-400 hover:text-rose-400 transition-colors" disabled={hitFreeLimit}>
+            <Smile className="w-5 h-5" />
+          </button>
           <input
             type="text"
             value={inputText}
@@ -326,8 +327,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             placeholder={hitFreeLimit ? 'Upgrade to send more messages...' : 'Type a message...'}
             disabled={hitFreeLimit}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            className="flex-1 bg-transparent border-none px-4 py-3 text-white focus:outline-none placeholder:text-slate-500 text-[15px] disabled:cursor-not-allowed"
+            className="flex-1 bg-transparent border-none py-3 text-white focus:outline-none placeholder:text-slate-500 text-[15px] disabled:cursor-not-allowed"
           />
+          {!inputText.trim() && (
+            <button className="p-2 text-slate-400 hover:text-rose-400 transition-colors mr-1" disabled={hitFreeLimit}>
+              <Mic className="w-5 h-5" />
+            </button>
+          )}
         </div>
         <motion.button
           onClick={hitFreeLimit ? onUnlockClick : handleSend}
